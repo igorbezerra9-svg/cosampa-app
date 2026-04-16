@@ -450,20 +450,11 @@ function col(row, ...names) {
 
 // ── Alert helpers ────────────────────────────────────────────────────────────
 function alertLevel(count, daysSinceLast) {
-  // Combined score: quantity + recency
-  let score = 0;
-  if (count >= 6) score += 3;
-  else if (count >= 4) score += 2;
-  else if (count >= 3) score += 1;
-  if (daysSinceLast !== null) {
-    if (daysSinceLast <= 30)  score += 3;
-    else if (daysSinceLast <= 90)  score += 2;
-    else if (daysSinceLast <= 180) score += 1;
-  }
-  if (score >= 5) return 'critical';
-  if (score >= 3) return 'high';
-  if (score >= 2) return 'medium';
-  return 'low';
+  // Level based purely on total count — uniform and predictable
+  if (count >= 5) return 'critical';
+  if (count === 4) return 'high';
+  if (count === 3) return 'medium';
+  return 'low'; // 2
 }
 
 function parseBRDate(str) {
@@ -524,15 +515,15 @@ function render() {
       filteredGrouped[cd].rows.push(r);
     });
 
-    // Compute alert levels using filtered rows for recency, full count for quantity
+    // Compute alert levels always from total count
     Object.values(grouped).forEach(g => {
-      const fg = filteredGrouped[g.cd];
-      const relevantRows = fg ? fg.rows : g.rows;
-      const dates = relevantRows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
+      // Recency: use all rows (not filtered) for "X dias atrás"
+      const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
       const days = dates.map(d => daysSince(d)).filter(d => d !== null);
       g.minDays = days.length ? Math.min(...days) : null;
       g.level = alertLevel(g.count, g.minDays);
-      // If period filter is active and CD has no rows in period, skip
+      // Period filter: show only CDs that have at least one occurrence in the period
+      const fg = filteredGrouped[g.cd];
       g.inPeriod = state.periodFilter === 'all' || (fg && fg.rows.length > 0);
     });
 
