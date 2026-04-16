@@ -657,10 +657,19 @@ function openDetail(idx) {
       .sort((a, b) => b.count - a.count);
     const g = sorted[idx];
     if (!g) return;
-    r = g.rows[0];
+    // Sort rows by date descending — most recent first
+    const sortedRows = [...g.rows].sort((a, b) => {
+      const da = parseBRDate(col(a,'Data','DATA','data'));
+      const db = parseBRDate(col(b,'Data','DATA','data'));
+      if (!da && !db) return 0;
+      if (!da) return 1;
+      if (!db) return -1;
+      return db - da;
+    });
+    r = sortedRows[0];  // most recent occurrence
     cd = g.cd;
     alim = g.alim;
-    relatedRows = g.rows;
+    relatedRows = sortedRows;
   } else {
     const rows = getRows();
     r = rows[idx];
