@@ -530,6 +530,10 @@ function render() {
       .sort((a, b) => {
         const lvlOrder = {critical:0,high:1,medium:2,low:3};
         if (lvlOrder[a.level] !== lvlOrder[b.level]) return lvlOrder[a.level] - lvlOrder[b.level];
+        // Within same level: most recent first
+        const aDate = a.minDays !== null ? a.minDays : 99999;
+        const bDate = b.minDays !== null ? b.minDays : 99999;
+        if (aDate !== bDate) return aDate - bDate;
         return b.count - a.count;
       });
 
