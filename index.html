@@ -735,6 +735,7 @@ function openDetail(idx) {
     cd = g.cd;
     alim = g.alim;
     relatedRows = sortedRows;
+    state.currentRelatedRows = sortedRows;  // save for openOccurrence
   } else {
     const rows = getRows();
     r = rows[idx];
@@ -993,14 +994,10 @@ function renderOccurrenceDetail(rr) {
 }
 
 function openOccurrence(ri) {
-  const sorted = Object.values(state.groupedReiteradas || {})
-    .filter(g => g.count > 1).sort((a,b) => b.count - a.count);
-  // Find which group is currently open
   const titleEl = document.getElementById('detailTitle');
   const cd = titleEl ? titleEl.textContent : '';
-  const group = state.groupedReiteradas && state.groupedReiteradas[cd];
-  if (!group) return;
-  const rr = group.rows[ri];
+  // Use the same sorted rows that are displayed in the table
+  const rr = state.currentRelatedRows && state.currentRelatedRows[ri];
   if (!rr) return;
 
   const data = col(rr,'Data','DATA','data') || 'Ocorrência';
@@ -1206,6 +1203,7 @@ function openOccurrenceFromGroup(cd, ri) {
     if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
     return db - da;
   });
+  state.currentRelatedRows = sortedRows;
   const rr = sortedRows[ri];
   if (!rr) return;
   const data = col(rr,'Data','DATA','data') || 'Ocorrência';
