@@ -211,11 +211,11 @@
 
   /* ── Occurrence detail modal ── */
   .occur-modal {
-    position:absolute; inset:0; background:var(--bg); z-index:20;
-    transform:translateY(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    position:absolute; inset:0; background:var(--bg); z-index:30;
+    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
     display:flex; flex-direction:column;
   }
-  .occur-modal.open { transform:translateY(0); }
+  .occur-modal.open { transform:translateX(0); }
   .occur-modal-header {
     background:var(--surface); border-bottom:1px solid var(--border);
     padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0;
