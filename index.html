@@ -291,15 +291,27 @@ async function loadMTIfNeeded() {
   MT_LOADING = true;
   try {
     const resp = await fetch(MT_CSV_URL);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const lines = text.trim().split('\n').slice(1);
+    console.log('MT lines loaded:', lines.length);
     MT_DATA = lines.map(line => {
-      const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-      const clean = cols.map(c => c.replace(/^"|"$/g,'').trim());
-      return { cd: clean[0]||'', gps: clean[1]||'', alimentador: clean[2]||'' };
-    });
+      // robust CSV parse handling quoted fields
+      const cols = [];
+      let cur = '', inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      cols.push(cur.trim());
+      return { cd: cols[0]||'', gps: cols[1]||'', alimentador: cols[2]||'' };
+    }).filter(r => r.cd);
   } catch(e) {
+    console.error('MT load error:', e);
     MT_DATA = [];
+    state.mtError = 'Erro ao carregar MT: ' + e.message;
   }
   MT_LOADING = false;
 }
@@ -365,7 +377,11 @@ function getRows() {
     if (!state.search || state.search.length < 2) return [];
     if (MT_DATA === null) return [];
     const q = state.search.toLowerCase();
-    return MT_DATA.filter(r => r.cd.toLowerCase().includes(q) || r.alimentador.toLowerCase().includes(q)).slice(0, 100);
+    const results = MT_DATA.filter(r => 
+      (r.cd||'').toLowerCase().includes(q) || 
+      (r.alimentador||'').toLowerCase().includes(q)
+    );
+    return results.slice(0, 100);
   }
   if (state.tab === 'bt') {
     const rows = BT_DATA;
@@ -526,9 +542,12 @@ function render() {
     `;
   } else {
     if (state.tab === 'mt' && MT_DATA === null) {
-      // Trigger load in background
       loadMTIfNeeded().then(() => render());
       main.innerHTML = `<div class="status-box"><div class="spinner"></div><span>Carregando MT…</span></div>`;
+      return;
+    }
+    if (state.tab === 'mt' && state.mtError) {
+      main.innerHTML = `<div class="status-box"><span style="color:var(--danger);text-align:center;padding:0 20px">${state.mtError}<br><br>Verifique se o arquivo BASE_-_MT.csv está no repositório.</span></div>`;
       return;
     }
     const totalCount = state.tab === 'mt' ? (MT_DATA ? MT_DATA.length : 0) : BT_DATA.length;
