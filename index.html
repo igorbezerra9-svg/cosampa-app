@@ -322,16 +322,25 @@ function render() {
   const rows = getRows();
 
   if (state.tab === 'reiteradas') {
-    // Sort by ocorrências desc
-    const sorted = [...rows].sort((a, b) => {
-      const na = parseInt(col(a,'ocorrencias','total','qtd','count','totalreiteradas') || col(a, 'Related Reiteradas') || '0');
-      const nb = parseInt(col(b,'ocorrencias','total','qtd','count','totalreiteradas') || col(b, 'Related Reiteradas') || '0');
-      return nb - na;
+    // Group by CD, count occurrences, sort by count desc, only show CDs with >1 occurrence
+    const grouped = {};
+    rows.forEach(r => {
+      const cd   = col(r,'CD','Código','Code','cd');
+      const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
+      if (!cd) return;
+      if (!grouped[cd]) grouped[cd] = { cd, alim, count: 0, rows: [] };
+      grouped[cd].count++;
+      grouped[cd].rows.push(r);
     });
+    const sorted = Object.values(grouped)
+      .filter(g => g.count > 1)
+      .sort((a, b) => b.count - a.count);
+    // store grouped for detail access
+    state.groupedReiteradas = grouped;
     main.innerHTML = `
       <div class="count-bar">${sorted.length} transformadores reiterados</div>
       ${sorted.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado encontrado</div>' : ''}
-      ${sorted.map((r,i) => renderReitItem(r,i)).join('')}
+      ${sorted.map((g,i) => renderReitItem(g,i)).join('')}
     `;
   } else {
     main.innerHTML = `
@@ -347,19 +356,16 @@ function render() {
   });
 }
 
-function renderReitItem(r, i) {
-  const cd    = col(r,'CD','Código','Code','cd');
-  const alim  = col(r,'Alimentador','ALIMENTADOR','alimentador');
-  const count = col(r,'Ocorrencias','OCORRENCIAS','Total','Qtd','ocorrencias','totalreiteradas') || '?';
+function renderReitItem(g, i) {
   return `
-    <div class="list-item" data-idx="${i}">
+    <div class="list-item" data-idx="${i}" data-type="reit">
       <div class="item-left">
-        <div class="item-cd">${cd}</div>
-        <div class="item-alim">${alim}</div>
+        <div class="item-cd">${g.cd}</div>
+        <div class="item-alim">${g.alim}</div>
       </div>
       <div class="badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="2" fill="none"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#fff" stroke-width="2" fill="none"/></svg>
-        ${count}
+        ${g.count}
       </div>
       <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`;
@@ -380,13 +386,27 @@ function renderLocItem(r, i) {
 
 // ── Detail ────────────────────────────────────────────────────────────────────
 function openDetail(idx) {
-  const rows = getRows();
-  const r = rows[idx];
-  if (!r) return;
+  let r, cd, alim, relatedRows = [];
 
-  const cd   = col(r,'CD','Endereço Google Maps','Endereco','cd') || '—';
-  const alim = col(r,'Alimentador','ALIMENTADOR','alimentador') || '—';
-  const gps  = col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link') || '';
+  if (state.tab === 'reiteradas' && state.groupedReiteradas) {
+    const sorted = Object.values(state.groupedReiteradas)
+      .filter(g => g.count > 1)
+      .sort((a, b) => b.count - a.count);
+    const g = sorted[idx];
+    if (!g) return;
+    r = g.rows[0];
+    cd = g.cd;
+    alim = g.alim;
+    relatedRows = g.rows;
+  } else {
+    const rows = getRows();
+    r = rows[idx];
+    if (!r) return;
+    cd   = col(r,'CD','Endereço Google Maps','Endereco','cd') || '—';
+    alim = col(r,'Alimentador','ALIMENTADOR','alimentador') || '—';
+  }
+
+  const gps  = col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link','mapa','MAPA') || '';
   const clientes = col(r,'Total Clientes','TOTAL CLIENTES','Clientes','clientes') || '';
   const potencia = col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia') || '';
 
@@ -429,8 +449,26 @@ function openDetail(idx) {
     });
   }
 
-  // Reiteradas related section (for BT/MT tabs, show related reiteradas)
-  if (state.tab !== 'reiteradas') {
+  // Reiteradas related section
+  if (state.tab === 'reiteradas' && relatedRows.length > 0) {
+    html += `
+      <hr class="divider">
+      <div class="reit-header">
+        Ocorrências
+        <span class="reit-count">${relatedRows.length}</span>
+      </div>
+      <table class="reit-table">
+        <thead><tr><th>Data</th><th>Clientes</th><th>Tipo de Causa</th></tr></thead>
+        <tbody>
+          ${relatedRows.map(rr => `
+            <tr>
+              <td>${col(rr,'Data','DATA','data')}</td>
+              <td>${col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes')}</td>
+              <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } else if (state.tab !== 'reiteradas') {
     const related = state.data.reiteradas.filter(rr => col(rr,'CD','cd') === cd);
     html += `
       <hr class="divider">
@@ -442,27 +480,16 @@ function openDetail(idx) {
       html += `<div class="no-items">Sem reiterações registradas</div>`;
     } else {
       html += `<table class="reit-table">
-        <thead><tr><th>CD</th><th>Clientes</th><th>Data</th></tr></thead>
+        <thead><tr><th>Data</th><th>Clientes</th><th>Causa</th></tr></thead>
         <tbody>
           ${related.map(rr => `
             <tr>
-              <td class="cd-cell">${col(rr,'CD','cd')}</td>
-              <td>${col(rr,'Clientes','CLIENTES','total clientes')}</td>
               <td>${col(rr,'Data','DATA','data')}</td>
+              <td>${col(rr,'Clientes','CLIENTES','Total Clientes')}</td>
+              <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','causa') || '—'}</td>
             </tr>`).join('')}
         </tbody>
       </table>`;
-    }
-  } else {
-    // For reiteradas tab, show the occurrences table
-    const countVal = col(r,'Ocorrencias','Total','Qtd','ocorrencias') || '';
-    if (countVal) {
-      html += `
-        <hr class="divider">
-        <div class="reit-header">
-          Total de Reiterações
-          <span class="reit-count">${countVal}</span>
-        </div>`;
     }
   }
 
