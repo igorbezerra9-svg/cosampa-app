@@ -101,6 +101,47 @@
   .badge svg { flex-shrink: 0; }
   .arrow-icon { color: var(--muted); flex-shrink: 0; margin-left: 8px; }
 
+
+  /* ── Alert levels ── */
+  .badge.critical { background: rgba(239,68,68,.2); color: #ef4444; border-color: rgba(239,68,68,.4); }
+  .badge.high     { background: rgba(249,115,22,.2); color: #f97316; border-color: rgba(249,115,22,.4); }
+  .badge.medium   { background: rgba(234,179,8,.2);  color: #eab308; border-color: rgba(234,179,8,.4); }
+  .badge.low      { background: rgba(34,197,94,.2);  color: #22c55e; border-color: rgba(34,197,94,.4); }
+
+  .alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-right:2px; }
+  .dot-critical { background:#ef4444; box-shadow:0 0 6px #ef4444; }
+  .dot-high     { background:#f97316; box-shadow:0 0 6px #f97316; }
+  .dot-medium   { background:#eab308; }
+  .dot-low      { background:#22c55e; }
+
+  /* ── Filter bar ── */
+  .filter-bar { display:flex; gap:8px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; }
+  .filter-bar::-webkit-scrollbar { display:none; }
+  .filter-chip {
+    background:var(--surface2); border:1px solid var(--border); border-radius:20px;
+    padding:5px 14px; font-size:12px; color:var(--muted); cursor:pointer;
+    white-space:nowrap; transition:all .2s; font-family:var(--font-body);
+  }
+  .filter-chip.active { background:rgba(240,165,0,.15); border-color:var(--accent); color:var(--accent); }
+
+  /* ── Chart ── */
+  .chart-wrap { padding:16px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .chart-title { font-family:var(--font-head); font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+  .chart-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+  .chart-label { font-family:var(--font-head); font-size:13px; color:var(--text); width:90px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .chart-bar-bg { flex:1; background:var(--surface2); border-radius:4px; height:18px; overflow:hidden; }
+  .chart-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:11px; font-weight:600; font-family:var(--font-head); transition:width .5s cubic-bezier(.4,0,.2,1); }
+  .chart-count { font-family:var(--font-head); font-size:13px; font-weight:700; width:24px; text-align:right; flex-shrink:0; }
+
+  /* ── Stats bar ── */
+  .stats-bar { display:flex; padding:12px 16px; gap:12px; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; }
+  .stat-card { flex:1; background:var(--surface2); border-radius:10px; padding:10px 12px; border:1px solid var(--border); }
+  .stat-value { font-family:var(--font-head); font-size:22px; font-weight:700; }
+  .stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
+  .stat-critical .stat-value { color:#ef4444; }
+  .stat-high .stat-value    { color:#f97316; }
+  .stat-total .stat-value   { color:var(--accent); }
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
 
   /* ── Detail panel ── */
@@ -271,6 +312,8 @@ let state = {
   loaded: false,
   loading: false,
   sheetId: localStorage.getItem(CONFIG_KEY) || DEFAULT_SHEET_ID,
+  periodFilter: 'all',  // all | 30 | 90 | 180
+  showChart: true,
 };
 
 // ── Sheet tab names ────────────────────────────────────────────────────────────
@@ -349,6 +392,50 @@ function col(row, ...names) {
   return '';
 }
 
+// ── Alert helpers ────────────────────────────────────────────────────────────
+function alertLevel(count, daysSinceLast) {
+  // Combined score: quantity + recency
+  let score = 0;
+  if (count >= 6) score += 3;
+  else if (count >= 4) score += 2;
+  else if (count >= 3) score += 1;
+  if (daysSinceLast !== null) {
+    if (daysSinceLast <= 30)  score += 3;
+    else if (daysSinceLast <= 90)  score += 2;
+    else if (daysSinceLast <= 180) score += 1;
+  }
+  if (score >= 5) return 'critical';
+  if (score >= 3) return 'high';
+  if (score >= 2) return 'medium';
+  return 'low';
+}
+
+function parseBRDate(str) {
+  if (!str) return null;
+  // formats: DD/MM/YYYY HH:mm or YYYY-MM-DD or DD/MM/YYYY
+  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+
+function daysSince(dateStr) {
+  const d = parseBRDate(dateStr);
+  if (!d) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function filterByPeriod(rows) {
+  if (state.periodFilter === 'all') return rows;
+  const days = parseInt(state.periodFilter);
+  const cutoff = Date.now() - days * 86400000;
+  return rows.filter(r => {
+    const d = parseBRDate(col(r,'Data','DATA','data'));
+    return d && d.getTime() >= cutoff;
+  });
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   const main = document.getElementById('mainContent');
@@ -360,9 +447,12 @@ function render() {
   const rows = getRows();
 
   if (state.tab === 'reiteradas') {
-    // Group by CD, count occurrences, sort by count desc, only show CDs with >1 occurrence
+    // Apply period filter first
+    const filteredRows = filterByPeriod(rows);
+
+    // Group by CD
     const grouped = {};
-    rows.forEach(r => {
+    filteredRows.forEach(r => {
       const cd   = col(r,'CD','Código','Code','cd');
       const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
       if (!cd) return;
@@ -370,14 +460,68 @@ function render() {
       grouped[cd].count++;
       grouped[cd].rows.push(r);
     });
+
+    // Compute alert levels
+    Object.values(grouped).forEach(g => {
+      const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
+      const days = dates.map(d => daysSince(d)).filter(d => d !== null);
+      g.minDays = days.length ? Math.min(...days) : null;
+      g.level = alertLevel(g.count, g.minDays);
+    });
+
     const sorted = Object.values(grouped)
       .filter(g => g.count > 1)
-      .sort((a, b) => b.count - a.count);
-    // store grouped for detail access
+      .sort((a, b) => {
+        const lvlOrder = {critical:0,high:1,medium:2,low:3};
+        if (lvlOrder[a.level] !== lvlOrder[b.level]) return lvlOrder[a.level] - lvlOrder[b.level];
+        return b.count - a.count;
+      });
+
     state.groupedReiteradas = grouped;
-    main.innerHTML = `
+
+    // Stats
+    const critical = sorted.filter(g => g.level === 'critical').length;
+    const high     = sorted.filter(g => g.level === 'high').length;
+    const statsHtml = `
+      <div class="stats-bar">
+        <div class="stat-card stat-critical"><div class="stat-value">${critical}</div><div class="stat-label">Crítico</div></div>
+        <div class="stat-card stat-high"><div class="stat-value">${high}</div><div class="stat-label">Alto</div></div>
+        <div class="stat-card stat-total"><div class="stat-value">${sorted.length}</div><div class="stat-label">Total</div></div>
+      </div>`;
+
+    // Period filter chips
+    const filters = [
+      {val:'all',label:'Todos'},
+      {val:'30',label:'30 dias'},
+      {val:'90',label:'90 dias'},
+      {val:'180',label:'180 dias'},
+    ];
+    const filterHtml = `<div class="filter-bar">${filters.map(f =>
+      `<button class="filter-chip${state.periodFilter===f.val?' active':''}" onclick="setPeriod('${f.val}')">${f.label}</button>`
+    ).join('')}</div>`;
+
+    // Top 10 chart
+    const top10 = sorted.slice(0, 10);
+    const maxCount = top10.length ? top10[0].count : 1;
+    const levelColors = {critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
+    const chartHtml = top10.length ? `
+      <div class="chart-wrap">
+        <div class="chart-title">Top 10 mais reiterados</div>
+        ${top10.map(g => `
+          <div class="chart-bar-row">
+            <div class="chart-label">${g.cd}</div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill" style="width:${Math.round(g.count/maxCount*100)}%;background:${levelColors[g.level]};color:#000">
+                ${g.count >= 3 ? g.count : ''}
+              </div>
+            </div>
+            <div class="chart-count" style="color:${levelColors[g.level]}">${g.count}</div>
+          </div>`).join('')}
+      </div>` : '';
+
+    main.innerHTML = statsHtml + filterHtml + chartHtml + `
       <div class="count-bar">${sorted.length} transformadores reiterados</div>
-      ${sorted.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado encontrado</div>' : ''}
+      ${sorted.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado para este período</div>' : ''}
       ${sorted.map((g,i) => renderReitItem(g,i)).join('')}
     `;
   } else {
@@ -404,15 +548,22 @@ function render() {
 }
 
 function renderReitItem(g, i) {
+  const lvl = g.level || 'low';
+  const lvlLabel = {critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl];
+  const dotClass = 'dot-'+lvl;
+  const recency = g.minDays !== null ? (g.minDays === 0 ? 'hoje' : g.minDays <= 30 ? g.minDays+'d atrás' : '') : '';
   return `
     <div class="list-item" data-idx="${i}" data-type="reit">
       <div class="item-left">
-        <div class="item-cd">${g.cd}</div>
-        <div class="item-alim">${g.alim}</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div class="alert-dot ${dotClass}"></div>
+          <div class="item-cd">${g.cd}</div>
+        </div>
+        <div class="item-alim" style="padding-left:15px">${g.alim}${recency ? ' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>' : ''}</div>
       </div>
-      <div class="badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="2" fill="none"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#fff" stroke-width="2" fill="none"/></svg>
-        ${g.count}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+        <div class="badge ${lvl}">${g.count}x</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--font-head)">${lvlLabel}</div>
       </div>
       <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`;
@@ -595,6 +746,12 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
 });
 
 document.getElementById('settingsBtn').addEventListener('click', showSetup);
+
+// ── Period filter ────────────────────────────────────────────────────────────
+function setPeriod(val) {
+  state.periodFilter = val;
+  render();
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadData();
