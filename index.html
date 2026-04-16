@@ -209,6 +209,22 @@
   }
   .nav-btn svg { display: block; }
 
+  /* ── Occurrence detail modal ── */
+  .occur-modal {
+    position:absolute; inset:0; background:var(--bg); z-index:20;
+    transform:translateY(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column;
+  }
+  .occur-modal.open { transform:translateY(0); }
+  .occur-modal-header {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0;
+  }
+  .occur-modal-content { flex:1; overflow-y:auto; padding:16px; }
+  .occur-row { cursor:pointer; transition:background .15s; }
+  .occur-row:hover { background:var(--surface2); }
+  .occur-row td { padding:10px 6px !important; }
+
   /* ── Share button ── */
   .share-btn {
     display:flex; align-items:center; gap:8px; width:100%;
@@ -265,6 +281,17 @@
       <span class="detail-title" id="detailTitle"></span>
     </div>
     <div class="detail-content" id="detailContent"></div>
+  </div>
+
+  <!-- Occurrence detail modal -->
+  <div class="occur-modal" id="occurModal">
+    <div class="occur-modal-header">
+      <button class="back-btn" id="occurBackBtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="detail-title" id="occurTitle"></span>
+    </div>
+    <div class="occur-modal-content" id="occurContent"></div>
   </div>
 
   <nav>
@@ -703,11 +730,12 @@ function openDetail(idx) {
       <table class="reit-table">
         <thead><tr><th>Data</th><th>Clientes</th><th>Tipo de Causa</th></tr></thead>
         <tbody>
-          ${relatedRows.map(rr => `
-            <tr>
+          ${relatedRows.map((rr, ri) => `
+            <tr class="occur-row" onclick="openOccurrence(${ri})">
               <td>${col(rr,'Data','DATA','data')}</td>
               <td>${col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes')}</td>
               <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '—'}</td>
+              <td style="color:var(--accent);font-size:12px;padding-right:4px">›</td>
             </tr>`).join('')}
         </tbody>
       </table>`;
@@ -725,11 +753,12 @@ function openDetail(idx) {
       html += `<table class="reit-table">
         <thead><tr><th>Data</th><th>Clientes</th><th>Causa</th></tr></thead>
         <tbody>
-          ${related.map(rr => `
-            <tr>
+          ${related.map((rr, ri) => `
+            <tr class="occur-row" onclick="openOccurrenceFromRelated(${ri}, '${cd}')">
               <td>${col(rr,'Data','DATA','data')}</td>
               <td>${col(rr,'Clientes','CLIENTES','Total Clientes')}</td>
               <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','causa') || '—'}</td>
+              <td style="color:var(--accent);font-size:12px;padding-right:4px">›</td>
             </tr>`).join('')}
         </tbody>
       </table>`;
@@ -782,6 +811,10 @@ document.getElementById('searchInput').addEventListener('input', e => {
   render();
 });
 
+document.getElementById('occurBackBtn').addEventListener('click', () => {
+  document.getElementById('occurModal').classList.remove('open');
+});
+
 document.getElementById('backBtn').addEventListener('click', () => {
   document.getElementById('detailPanel').classList.remove('open');
 });
@@ -823,6 +856,83 @@ function copyInfo(cd, alim, clientes, potencia, gps, count, level, municipio, ca
     const el = document.getElementById('copied-msg');
     if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
   });
+}
+
+// ── Occurrence detail ────────────────────────────────────────────────────────
+function renderOccurrenceDetail(rr) {
+  const data     = col(rr,'Data','DATA','data') || '—';
+  const clientes = col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes') || '—';
+  const incid    = col(rr,'Tipo de Incidencia','TIPO DE INCIDENCIA','tipoincidencia','incidencia') || '';
+  const causa    = col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '';
+  const municipio= col(rr,'Municipio','MUNICIPIO','município','Município') || '';
+  const obs      = col(rr,'Observações','OBSERVAÇÕES','observacoes','obs','Observacoes') || '';
+  const mapa     = col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO') || '';
+  const cd       = col(rr,'CD','cd') || '';
+
+  let html = '';
+
+  // Fields
+  const fields = [
+    ['Data', data],
+    ['Clientes', clientes],
+    ['Tipo de Incidência', incid],
+    ['Tipo de Causa', causa],
+    ['Município', municipio],
+  ];
+  fields.forEach(([label, val]) => {
+    if (!val) return;
+    html += `<div class="field-block"><div class="field-label">${label}</div><div class="field-value" style="font-size:15px">${val}</div></div>`;
+  });
+
+  // Observations highlighted
+  if (obs) {
+    html += `
+      <hr class="divider">
+      <div class="field-label">Observações</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${obs}</div>
+    `;
+  }
+
+  // Map link
+  if (mapa) {
+    html += `
+      <hr class="divider">
+      <div class="field-label">Localização GPS</div>
+      <a class="field-link" href="${mapa}" target="_blank" style="margin-top:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Abrir no Google Maps
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>`;
+  }
+
+  return html;
+}
+
+function openOccurrence(ri) {
+  const sorted = Object.values(state.groupedReiteradas || {})
+    .filter(g => g.count > 1).sort((a,b) => b.count - a.count);
+  // Find which group is currently open
+  const titleEl = document.getElementById('detailTitle');
+  const cd = titleEl ? titleEl.textContent : '';
+  const group = state.groupedReiteradas && state.groupedReiteradas[cd];
+  if (!group) return;
+  const rr = group.rows[ri];
+  if (!rr) return;
+
+  const data = col(rr,'Data','DATA','data') || 'Ocorrência';
+  document.getElementById('occurTitle').textContent = cd + ' · ' + data;
+  document.getElementById('occurContent').innerHTML = renderOccurrenceDetail(rr);
+  document.getElementById('occurModal').classList.add('open');
+}
+
+function openOccurrenceFromRelated(ri, cd) {
+  const related = state.data.reiteradas.filter(rr => col(rr,'CD','cd') === cd);
+  const rr = related[ri];
+  if (!rr) return;
+  const data = col(rr,'Data','DATA','data') || 'Ocorrência';
+  document.getElementById('occurTitle').textContent = cd + ' · ' + data;
+  document.getElementById('occurContent').innerHTML = renderOccurrenceDetail(rr);
+  document.getElementById('occurModal').classList.add('open');
 }
 
 // ── Period filter ────────────────────────────────────────────────────────────
