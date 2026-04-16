@@ -540,6 +540,7 @@ function render() {
       });
 
     state.groupedReiteradas = grouped;
+    state.sortedReiteradas = sorted;
 
     // Stats
     const critical = sorted.filter(g => g.level === 'critical').length;
@@ -651,11 +652,8 @@ function renderLocItem(r, i) {
 function openDetail(idx) {
   let r, cd, alim, relatedRows = [];
 
-  if (state.tab === 'reiteradas' && state.groupedReiteradas) {
-    const sorted = Object.values(state.groupedReiteradas)
-      .filter(g => g.count > 1)
-      .sort((a, b) => b.count - a.count);
-    const g = sorted[idx];
+  if (state.tab === 'reiteradas' && state.sortedReiteradas) {
+    const g = state.sortedReiteradas[idx];
     if (!g) return;
     // Sort rows by date descending — most recent first
     const sortedRows = [...g.rows].sort((a, b) => {
