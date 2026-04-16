@@ -503,12 +503,9 @@ function render() {
   const rows = getRows();
 
   if (state.tab === 'reiteradas') {
-    // Apply period filter first
-    const filteredRows = filterByPeriod(rows);
-
-    // Group by CD
+    // Group ALL rows first (count is always total, not filtered)
     const grouped = {};
-    filteredRows.forEach(r => {
+    rows.forEach(r => {
       const cd   = col(r,'CD','Código','Code','cd');
       const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
       if (!cd) return;
@@ -517,16 +514,30 @@ function render() {
       grouped[cd].rows.push(r);
     });
 
-    // Compute alert levels
+    // Apply period filter only to determine recency/alert level
+    const filteredRows = filterByPeriod(rows);
+    const filteredGrouped = {};
+    filteredRows.forEach(r => {
+      const cd = col(r,'CD','Código','Code','cd');
+      if (!cd) return;
+      if (!filteredGrouped[cd]) filteredGrouped[cd] = { rows: [] };
+      filteredGrouped[cd].rows.push(r);
+    });
+
+    // Compute alert levels using filtered rows for recency, full count for quantity
     Object.values(grouped).forEach(g => {
-      const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
+      const fg = filteredGrouped[g.cd];
+      const relevantRows = fg ? fg.rows : g.rows;
+      const dates = relevantRows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
       const days = dates.map(d => daysSince(d)).filter(d => d !== null);
       g.minDays = days.length ? Math.min(...days) : null;
       g.level = alertLevel(g.count, g.minDays);
+      // If period filter is active and CD has no rows in period, skip
+      g.inPeriod = state.periodFilter === 'all' || (fg && fg.rows.length > 0);
     });
 
     const sorted = Object.values(grouped)
-      .filter(g => g.count > 1)
+      .filter(g => g.count > 1 && g.inPeriod)
       .sort((a, b) => {
         const lvlOrder = {critical:0,high:1,medium:2,low:3};
         if (lvlOrder[a.level] !== lvlOrder[b.level]) return lvlOrder[a.level] - lvlOrder[b.level];
