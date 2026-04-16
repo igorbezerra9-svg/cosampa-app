@@ -283,7 +283,7 @@ const BT_DATA = BT_RAW.map(r => ({cd:r[0], gps:r[1], alimentador:r[2], clientes:
 // MT — carregado sob demanda do CSV no GitHub
 let MT_DATA = null;
 let MT_LOADING = false;
-const MT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/BASE_-_MT.csv';
+const MT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/BASE%20-%20MT.csv';
 
 async function loadMTIfNeeded() {
   if (MT_DATA !== null) return;
