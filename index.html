@@ -209,6 +209,19 @@
   }
   .nav-btn svg { display: block; }
 
+  /* ── Share button ── */
+  .share-btn {
+    display:flex; align-items:center; gap:8px; width:100%;
+    background:rgba(240,165,0,.08); border:1px solid rgba(240,165,0,.25);
+    border-radius:10px; padding:12px 16px; cursor:pointer;
+    color:var(--accent); font-family:var(--font-head); font-size:15px; font-weight:600;
+    letter-spacing:.5px; transition:background .2s; margin-bottom:16px;
+  }
+  .share-btn:hover { background:rgba(240,165,0,.15); }
+  .share-btn svg { flex-shrink:0; }
+  .copied-msg { text-align:center; font-size:12px; color:var(--green); margin-top:-10px; margin-bottom:12px; opacity:0; transition:opacity .3s; }
+  .copied-msg.show { opacity:1; }
+
   /* ── Empty ── */
   .empty { text-align: center; padding: 60px 24px; color: var(--muted); font-size: 14px; }
   .empty-icon { font-size: 36px; margin-bottom: 12px; }
@@ -629,7 +642,20 @@ function openDetail(idx) {
 
   document.getElementById('detailTitle').textContent = cd;
 
+  // Gather extra fields for share
+  const municipio = col(r,'Municipio','MUNICIPIO','município','Município') || '';
+  const causa     = col(r,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '';
+  const countVal  = (state.tab === 'reiteradas' && relatedRows) ? relatedRows.length : '';
+  const lvl       = (state.tab === 'reiteradas' && state.groupedReiteradas && state.groupedReiteradas[cd]) 
+                    ? state.groupedReiteradas[cd].level : '';
+
   let html = `
+    <button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','${potencia}','${gps}','${countVal}','${lvl}','${municipio}','${causa}')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copiar informações
+    </button>
+    <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
+  `+`
     <div class="field-block">
       <div class="field-label">CD</div>
       <div class="field-value">${cd}</div>
@@ -765,6 +791,39 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
 });
 
 document.getElementById('settingsBtn').addEventListener('click', showSetup);
+
+// ── Share / Copy ─────────────────────────────────────────────────────────────
+function copyInfo(cd, alim, clientes, potencia, gps, count, level, municipio, causa) {
+  const lvlLabel = {critical:'🔴 Crítico',high:'🟠 Alto',medium:'🟡 Médio',low:'🟢 Baixo'}[level] || '';
+  let msg = `📋 *Informações — ${cd}*
+`;
+  msg += `*Alimentador:* ${alim}
+`;
+  if (municipio) msg += `*Município:* ${municipio}
+`;
+  if (clientes)  msg += `*Total Clientes:* ${clientes}
+`;
+  if (potencia)  msg += `*Total Potência:* ${potencia}
+`;
+  if (count)     msg += `*Reiterações:* ${count}x ${lvlLabel}
+`;
+  if (causa)     msg += `*Tipo de Causa:* ${causa}
+`;
+  if (gps)       msg += `*Localização:* ${gps}`;
+
+  navigator.clipboard.writeText(msg).then(() => {
+    const el = document.getElementById('copied-msg');
+    if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = msg; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    const el = document.getElementById('copied-msg');
+    if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+  });
+}
 
 // ── Period filter ────────────────────────────────────────────────────────────
 function setPeriod(val) {
