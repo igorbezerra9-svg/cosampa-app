@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>COSAMPA – Rede Elétrica</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1c2230;
+    --border:    #2a3244;
+    --accent:    #f0a500;
+    --accent2:   #e05c00;
+    --danger:    #ef4444;
+    --text:      #e2e8f0;
+    --muted:     #7a8aa0;
+    --green:     #22c55e;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); }
+
+  /* ── Layout ── */
+  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; position: relative; }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .logo { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 2px; color: var(--accent); }
+  .logo span { color: var(--muted); font-weight: 500; font-size: 13px; display: block; letter-spacing: 1px; margin-top: -2px; }
+  .header-right { display: flex; gap: 10px; align-items: center; }
+  .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 8px; transition: color .2s, background .2s; }
+  .icon-btn:hover { color: var(--accent); background: rgba(240,165,0,.08); }
+  .icon-btn svg { display: block; }
+
+  /* ── Search bar ── */
+  .search-wrap { padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .search-wrap input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 14px 9px 38px; color: var(--text);
+    font-family: var(--font-body); font-size: 14px; outline: none; transition: border .2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+  /* ── Content ── */
+  .content { flex: 1; overflow-y: auto; padding: 0; }
+  .content::-webkit-scrollbar { width: 3px; }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── Loading / Error ── */
+  .status-box { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 12px; color: var(--muted); font-size: 14px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Setup banner ── */
+  .setup-banner {
+    margin: 16px; padding: 16px; background: linear-gradient(135deg, rgba(240,165,0,.12), rgba(224,92,0,.08));
+    border: 1px solid rgba(240,165,0,.3); border-radius: 12px;
+  }
+  .setup-banner h3 { font-family: var(--font-head); font-size: 16px; color: var(--accent); margin-bottom: 8px; }
+  .setup-banner p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+  .setup-banner input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; color: var(--text); font-size: 13px; font-family: var(--font-body); outline: none; margin-bottom: 8px;
+  }
+  .setup-banner input:focus { border-color: var(--accent); }
+  .btn-primary {
+    background: var(--accent); color: #000; border: none; border-radius: 8px;
+    padding: 9px 18px; font-family: var(--font-head); font-size: 15px; font-weight: 700;
+    cursor: pointer; letter-spacing: .5px; transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .85; }
+
+  /* ── List items ── */
+  .list-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background .15s; animation: fadeUp .3s both;
+  }
+  .list-item:hover { background: var(--surface2); }
+  .item-left { flex: 1; min-width: 0; }
+  .item-cd { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: .5px; }
+  .item-alim { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(239,68,68,.15); color: var(--danger);
+    border: 1px solid rgba(239,68,68,.3); border-radius: 20px;
+    padding: 4px 10px; font-size: 13px; font-weight: 600; font-family: var(--font-head);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .badge svg { flex-shrink: 0; }
+  .arrow-icon { color: var(--muted); flex-shrink: 0; margin-left: 8px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* ── Detail panel ── */
+  .detail-panel {
+    position: absolute; inset: 0; background: var(--bg);
+    transform: translateX(100%); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    display: flex; flex-direction: column; z-index: 10;
+  }
+  .detail-panel.open { transform: translateX(0); }
+  .detail-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .back-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px; display: flex; }
+  .detail-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+  .detail-content { flex: 1; overflow-y: auto; padding: 16px; }
+  .detail-content::-webkit-scrollbar { width: 3px; }
+  .detail-content::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .field-block { margin-bottom: 16px; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .field-value { font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); }
+  .field-value.big { font-size: 26px; color: var(--accent); }
+  .field-link {
+    display: inline-flex; align-items: center; gap: 6px; color: #3b82f6;
+    font-size: 14px; text-decoration: none; word-break: break-all;
+    padding: 8px 12px; background: rgba(59,130,246,.08); border-radius: 8px;
+    border: 1px solid rgba(59,130,246,.2); width: 100%;
+  }
+  .field-link:hover { background: rgba(59,130,246,.15); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* ── Reiteradas table ── */
+  .reit-header { font-family: var(--font-head); font-size: 14px; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .reit-count { background: rgba(239,68,68,.15); color: var(--danger); border: 1px solid rgba(239,68,68,.3); border-radius: 20px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
+  .reit-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .reit-table th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+  .reit-table td { padding: 10px 6px; border-bottom: 1px solid rgba(42,50,68,.5); color: var(--text); }
+  .reit-table tr:last-child td { border-bottom: none; }
+  .reit-table .cd-cell { font-family: var(--font-head); font-weight: 700; color: var(--accent); }
+  .no-items { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; }
+
+  /* ── Info grid ── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .info-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+  .info-card .value { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--accent); }
+
+  /* ── Bottom nav ── */
+  nav {
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; flex-shrink: 0;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 0 12px; background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: var(--font-body); font-size: 11px;
+    transition: color .2s; position: relative;
+  }
+  .nav-btn.active { color: var(--text); }
+  .nav-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
+    height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
+  }
+  .nav-btn svg { display: block; }
+
+  /* ── Empty ── */
+  .empty { text-align: center; padding: 60px 24px; color: var(--muted); font-size: 14px; }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* ── Count bar ── */
+  .count-bar { padding: 8px 16px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">COSAMPA<span>Rede Elétrica</span></div>
+    <div class="header-right">
+      <button class="icon-btn" id="refreshBtn" title="Atualizar dados">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="Configurar planilha">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar por CD ou Alimentador…">
+  </div>
+
+  <div class="content" id="mainContent"></div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <button class="back-btn" id="backBtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="detail-title" id="detailTitle"></span>
+    </div>
+    <div class="detail-content" id="detailContent"></div>
+  </div>
+
+  <nav>
+    <button class="nav-btn active" data-tab="reiteradas">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Reiteradas
+    </button>
+    <button class="nav-btn" data-tab="mt">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Localização MT
+    </button>
+    <button class="nav-btn" data-tab="bt">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Localização BT
+    </button>
+  </nav>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const CONFIG_KEY = 'cosampa_sheet_id';
+const DEFAULT_SHEET_ID = '14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let state = {
+  tab: 'reiteradas',
+  search: '',
+  data: { reiteradas: [], mt: [], bt: [] },
+  loaded: false,
+  loading: false,
+  sheetId: localStorage.getItem(CONFIG_KEY) || DEFAULT_SHEET_ID,
+};
+
+// ── Sheet tab names ────────────────────────────────────────────────────────────
+const SHEET_TABS = {
+  reiteradas: 'Reiterada',
+  mt:         'MT',
+  bt:         'BT',
+};
+
+// ── Fetch CSV from Google Sheets ──────────────────────────────────────────────
+async function fetchSheet(sheetId, tabName) {
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return parseCSV(await resp.text());
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+  return lines.slice(1).map(line => {
+    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim();
+    });
+    return obj;
+  });
+}
+
+// ── Load all tabs ─────────────────────────────────────────────────────────────
+async function loadData() {
+  if (!state.sheetId) { render(); return; }
+  state.loading = true; render();
+  try {
+    const [reiteradas, mt, bt] = await Promise.all([
+      fetchSheet(state.sheetId, SHEET_TABS.reiteradas),
+      fetchSheet(state.sheetId, SHEET_TABS.mt),
+      fetchSheet(state.sheetId, SHEET_TABS.bt),
+    ]);
+    state.data = { reiteradas, mt, bt };
+    state.loaded = true;
+  } catch(e) {
+    state.error = 'Erro ao carregar planilha. Verifique o ID e se ela está pública.';
+  }
+  state.loading = false; render();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getRows() {
+  const rows = state.data[state.tab] || [];
+  if (!state.search) return rows;
+  const q = state.search.toLowerCase();
+  return rows.filter(r =>
+    Object.values(r).some(v => v.toLowerCase().includes(q))
+  );
+}
+
+// Try to find the column name regardless of exact casing/spacing
+function col(row, ...names) {
+  const keys = Object.keys(row);
+  for (const n of names) {
+    const found = keys.find(k => k.toLowerCase().replace(/\s/g,'') === n.toLowerCase().replace(/\s/g,''));
+    if (found && row[found]) return row[found];
+  }
+  return '';
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const main = document.getElementById('mainContent');
+
+  if (!state.sheetId) { main.innerHTML = renderSetup(); return; }
+  if (state.loading) { main.innerHTML = `<div class="status-box"><div class="spinner"></div><span>Carregando dados…</span></div>`; return; }
+  if (state.error) { main.innerHTML = `<div class="status-box"><span style="color:var(--danger)">${state.error}</span><button class="btn-primary" onclick="showSetup()">Reconfigurar</button></div>`; return; }
+
+  const rows = getRows();
+
+  if (state.tab === 'reiteradas') {
+    // Sort by ocorrências desc
+    const sorted = [...rows].sort((a, b) => {
+      const na = parseInt(col(a,'ocorrencias','total','qtd','count','totalreiteradas') || col(a, 'Related Reiteradas') || '0');
+      const nb = parseInt(col(b,'ocorrencias','total','qtd','count','totalreiteradas') || col(b, 'Related Reiteradas') || '0');
+      return nb - na;
+    });
+    main.innerHTML = `
+      <div class="count-bar">${sorted.length} transformadores reiterados</div>
+      ${sorted.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado encontrado</div>' : ''}
+      ${sorted.map((r,i) => renderReitItem(r,i)).join('')}
+    `;
+  } else {
+    main.innerHTML = `
+      <div class="count-bar">${rows.length} registros encontrados</div>
+      ${rows.length === 0 ? '<div class="empty"><div class="empty-icon">📍</div>Nenhum resultado encontrado</div>' : ''}
+      ${rows.map((r,i) => renderLocItem(r,i)).join('')}
+    `;
+  }
+
+  // Attach click listeners
+  document.querySelectorAll('.list-item').forEach(el => {
+    el.addEventListener('click', () => openDetail(parseInt(el.dataset.idx)));
+  });
+}
+
+function renderReitItem(r, i) {
+  const cd    = col(r,'CD','Código','Code','cd');
+  const alim  = col(r,'Alimentador','ALIMENTADOR','alimentador');
+  const count = col(r,'Ocorrencias','OCORRENCIAS','Total','Qtd','ocorrencias','totalreiteradas') || '?';
+  return `
+    <div class="list-item" data-idx="${i}">
+      <div class="item-left">
+        <div class="item-cd">${cd}</div>
+        <div class="item-alim">${alim}</div>
+      </div>
+      <div class="badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="2" fill="none"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#fff" stroke-width="2" fill="none"/></svg>
+        ${count}
+      </div>
+      <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+}
+
+function renderLocItem(r, i) {
+  const cd   = col(r,'CD','Endereço Google Maps','Endereco','cd');
+  const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
+  return `
+    <div class="list-item" data-idx="${i}">
+      <div class="item-left">
+        <div class="item-cd">${cd}</div>
+        <div class="item-alim">${alim}</div>
+      </div>
+      <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+}
+
+// ── Detail ────────────────────────────────────────────────────────────────────
+function openDetail(idx) {
+  const rows = getRows();
+  const r = rows[idx];
+  if (!r) return;
+
+  const cd   = col(r,'CD','Endereço Google Maps','Endereco','cd') || '—';
+  const alim = col(r,'Alimentador','ALIMENTADOR','alimentador') || '—';
+  const gps  = col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link') || '';
+  const clientes = col(r,'Total Clientes','TOTAL CLIENTES','Clientes','clientes') || '';
+  const potencia = col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia') || '';
+
+  document.getElementById('detailTitle').textContent = cd;
+
+  let html = `
+    <div class="field-block">
+      <div class="field-label">CD</div>
+      <div class="field-value">${cd}</div>
+    </div>
+    <div class="field-block">
+      <div class="field-label">Alimentador</div>
+      <div class="field-value">${alim}</div>
+    </div>`;
+
+  if (gps) html += `
+    <div class="field-block">
+      <div class="field-label">Localização GPS</div>
+      <a class="field-link" href="${gps}" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Abrir no Google Maps
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>`;
+
+  if (clientes || potencia) html += `
+    <div class="info-grid">
+      ${clientes ? `<div class="info-card"><div class="label">Total Clientes</div><div class="value">${clientes}</div></div>` : ''}
+      ${potencia ? `<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>` : ''}
+    </div>`;
+
+  // Show all remaining fields
+  const knownCols = ['cd','alimentador','gps','localização','total clientes','total potencia','ocorrencias','total','qtd'];
+  const extras = Object.entries(r).filter(([k]) => !knownCols.some(kc => k.toLowerCase().includes(kc)));
+  if (extras.length) {
+    html += `<hr class="divider">`;
+    extras.forEach(([k, v]) => {
+      if (!v) return;
+      html += `<div class="field-block"><div class="field-label">${k}</div><div class="field-value" style="font-size:15px">${v}</div></div>`;
+    });
+  }
+
+  // Reiteradas related section (for BT/MT tabs, show related reiteradas)
+  if (state.tab !== 'reiteradas') {
+    const related = state.data.reiteradas.filter(rr => col(rr,'CD','cd') === cd);
+    html += `
+      <hr class="divider">
+      <div class="reit-header">
+        Reiteradas relacionadas
+        <span class="reit-count">${related.length}</span>
+      </div>`;
+    if (related.length === 0) {
+      html += `<div class="no-items">Sem reiterações registradas</div>`;
+    } else {
+      html += `<table class="reit-table">
+        <thead><tr><th>CD</th><th>Clientes</th><th>Data</th></tr></thead>
+        <tbody>
+          ${related.map(rr => `
+            <tr>
+              <td class="cd-cell">${col(rr,'CD','cd')}</td>
+              <td>${col(rr,'Clientes','CLIENTES','total clientes')}</td>
+              <td>${col(rr,'Data','DATA','data')}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    }
+  } else {
+    // For reiteradas tab, show the occurrences table
+    const countVal = col(r,'Ocorrencias','Total','Qtd','ocorrencias') || '';
+    if (countVal) {
+      html += `
+        <hr class="divider">
+        <div class="reit-header">
+          Total de Reiterações
+          <span class="reit-count">${countVal}</span>
+        </div>`;
+    }
+  }
+
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
+function renderSetup() {
+  return `
+    <div class="setup-banner">
+      <h3>⚙️ Configurar Planilha</h3>
+      <p>Cole o <strong>ID da sua planilha</strong> do Google Sheets abaixo.<br>
+      O ID está na URL entre <code>/d/</code> e <code>/edit</code>.<br><br>
+      Certifique-se que a planilha está com acesso <strong>público (qualquer pessoa com o link pode ver)</strong>.</p>
+      <input type="text" id="sheetIdInput" placeholder="Ex: 14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y" value="${state.sheetId}">
+      <p style="margin-bottom:8px;font-size:12px;color:var(--muted)">Nomes das abas esperados: <strong>Reiteradas, MT, BT</strong></p>
+      <button class="btn-primary" onclick="saveAndLoad()">Carregar Dados</button>
+    </div>`;
+}
+
+function showSetup() { state.sheetId = ''; render(); }
+
+function saveAndLoad() {
+  const id = document.getElementById('sheetIdInput')?.value?.trim();
+  if (!id) return;
+  state.sheetId = id;
+  state.error = null;
+  localStorage.setItem(CONFIG_KEY, id);
+  loadData();
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.tab = btn.dataset.tab;
+    state.search = '';
+    document.getElementById('searchInput').value = '';
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('detailPanel').classList.remove('open');
+});
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  state.error = null; loadData();
+});
+
+document.getElementById('settingsBtn').addEventListener('click', showSetup);
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
