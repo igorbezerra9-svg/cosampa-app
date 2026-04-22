@@ -123,6 +123,7 @@
   .alim-lvl{font-size:11px;font-weight:700;}
   .alim-badge{border-radius:20px;padding:4px 10px;font-size:13px;font-weight:700;font-family:var(--font-head);border:1px solid;flex-shrink:0;}
   .alim-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:10;}
+  .detail-panel.above-alim{z-index:15;}
   .alim-panel.open{transform:translateX(0);}
   .alim-panel-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
   .alim-panel-content{flex:1;overflow-y:auto;}
@@ -949,7 +950,8 @@ function openAlimentador(name) {
       state.sortedReiteradas=[grp,...(state.sortedReiteradas||[]).filter(x=>x.cd!==g.cd)];
       openDetailReit(0,'reiteradas');
       state.sortedReiteradas=prevSorted;
-      document.getElementById('detailPanel').classList.add('open');
+      const dp = document.getElementById('detailPanel');
+      dp.classList.add('open','above-alim');
     });
   });
   document.getElementById('alimentadorPanel').classList.add('open');
@@ -999,7 +1001,10 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
   });
 });
 document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;render();});
-document.getElementById('backBtn').addEventListener('click',()=>document.getElementById('detailPanel').classList.remove('open'));
+document.getElementById('backBtn').addEventListener('click',()=>{
+  const dp=document.getElementById('detailPanel');
+  dp.classList.remove('open','above-alim');
+});
 document.getElementById('occurBackBtn').addEventListener('click',()=>document.getElementById('occurModal').classList.remove('open'));
 document.getElementById('alimentadorBackBtn').addEventListener('click',()=>document.getElementById('alimentadorPanel').classList.remove('open'));
 document.getElementById('refreshBtn').addEventListener('click',()=>{state.error=null;loadData();});
