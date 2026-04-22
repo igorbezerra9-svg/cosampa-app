@@ -434,9 +434,21 @@ function render() {
 
 function renderReiteradasTab(main, rawRows, grouped, tabKey, cdColNames) {
   if(!grouped||!rawRows){main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando…</span></div>`;return;}
-  const sorted=sortGroups(grouped,rawRows);
-  if(tabKey==='reiteradas') state.sortedReiteradas=sorted;
-  else state.sortedReiteradasMT=sorted;
+
+  // Apply search filter — rebuild groups from filtered rows
+  let effectiveGrouped = grouped;
+  if (state.search && state.search.length >= 2) {
+    const q = state.search.toLowerCase();
+    const filteredRaws = rawRows.filter(r =>
+      Object.values(r).some(v => v && v.toLowerCase().includes(q))
+    );
+    effectiveGrouped = buildGroups(filteredRaws, cdColNames);
+  }
+
+  const sorted=sortGroups(effectiveGrouped, rawRows);
+  // Save sorted using effectiveGrouped so openDetailReit uses filtered index
+  if(tabKey==='reiteradas') { state.sortedReiteradas=sorted; if(!state.search||state.search.length<2) state.groupedReiteradas=effectiveGrouped||grouped; }
+  else { state.sortedReiteradasMT=sorted; if(!state.search||state.search.length<2) state.groupedReiteradasMT=effectiveGrouped||grouped; }
 
   const critical=sorted.filter(g=>g.level==='critical').length;
   const high=sorted.filter(g=>g.level==='high').length;
