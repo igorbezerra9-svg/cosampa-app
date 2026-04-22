@@ -7,269 +7,136 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:        #0d1117;
-    --surface:   #161b22;
-    --surface2:  #1c2230;
-    --border:    #2a3244;
-    --accent:    #f0a500;
-    --accent2:   #e05c00;
-    --danger:    #ef4444;
-    --text:      #e2e8f0;
-    --muted:     #7a8aa0;
-    --green:     #22c55e;
-    --font-head: 'Rajdhani', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --bg:#0d1117; --surface:#161b22; --surface2:#1c2230; --border:#2a3244;
+    --accent:#f0a500; --accent2:#e05c00; --danger:#ef4444; --text:#e2e8f0;
+    --muted:#7a8aa0; --green:#22c55e;
+    --font-head:'Rajdhani',sans-serif; --font-body:'DM Sans',sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); }
-
-  /* ── Layout ── */
-  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; position: relative; }
-
-  /* ── Header ── */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px 10px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0;
-  }
-  .logo { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 2px; color: var(--accent); }
-  .logo span { color: var(--muted); font-weight: 500; font-size: 13px; display: block; letter-spacing: 1px; margin-top: -2px; }
-  .header-right { display: flex; gap: 10px; align-items: center; }
-  .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 8px; transition: color .2s, background .2s; }
-  .icon-btn:hover { color: var(--accent); background: rgba(240,165,0,.08); }
-  .icon-btn svg { display: block; }
-
-  /* ── Search bar ── */
-  .search-wrap { padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .search-wrap input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 10px; padding: 9px 14px 9px 38px; color: var(--text);
-    font-family: var(--font-body); font-size: 14px; outline: none; transition: border .2s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap { position: relative; }
-  .search-icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
-
-  /* ── Content ── */
-  .content { flex: 1; overflow-y: auto; padding: 0; }
-  .content::-webkit-scrollbar { width: 3px; }
-  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* ── Loading / Error ── */
-  .status-box { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 12px; color: var(--muted); font-size: 14px; }
-  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Setup banner ── */
-  .setup-banner {
-    margin: 16px; padding: 16px; background: linear-gradient(135deg, rgba(240,165,0,.12), rgba(224,92,0,.08));
-    border: 1px solid rgba(240,165,0,.3); border-radius: 12px;
-  }
-  .setup-banner h3 { font-family: var(--font-head); font-size: 16px; color: var(--accent); margin-bottom: 8px; }
-  .setup-banner p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
-  .setup-banner input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-    padding: 9px 12px; color: var(--text); font-size: 13px; font-family: var(--font-body); outline: none; margin-bottom: 8px;
-  }
-  .setup-banner input:focus { border-color: var(--accent); }
-  .btn-primary {
-    background: var(--accent); color: #000; border: none; border-radius: 8px;
-    padding: 9px 18px; font-family: var(--font-head); font-size: 15px; font-weight: 700;
-    cursor: pointer; letter-spacing: .5px; transition: opacity .2s;
-  }
-  .btn-primary:hover { opacity: .85; }
-
-  /* ── List items ── */
-  .list-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; border-bottom: 1px solid var(--border);
-    cursor: pointer; transition: background .15s; animation: fadeUp .3s both;
-  }
-  .list-item:hover { background: var(--surface2); }
-  .item-left { flex: 1; min-width: 0; }
-  .item-cd { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: .5px; }
-  .item-alim { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .badge {
-    display: flex; align-items: center; gap: 5px;
-    background: rgba(239,68,68,.15); color: var(--danger);
-    border: 1px solid rgba(239,68,68,.3); border-radius: 20px;
-    padding: 4px 10px; font-size: 13px; font-weight: 600; font-family: var(--font-head);
-    white-space: nowrap; flex-shrink: 0;
-  }
-  .badge svg { flex-shrink: 0; }
-  .arrow-icon { color: var(--muted); flex-shrink: 0; margin-left: 8px; }
-
-
-  /* ── Alert levels ── */
-  .badge.critical { background: rgba(239,68,68,.2); color: #ef4444; border-color: rgba(239,68,68,.4); }
-  .badge.high     { background: rgba(249,115,22,.2); color: #f97316; border-color: rgba(249,115,22,.4); }
-  .badge.medium   { background: rgba(234,179,8,.2);  color: #eab308; border-color: rgba(234,179,8,.4); }
-  .badge.low      { background: rgba(34,197,94,.2);  color: #22c55e; border-color: rgba(34,197,94,.4); }
-
-  .alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-right:2px; }
-  .dot-critical { background:#ef4444; box-shadow:0 0 6px #ef4444; }
-  .dot-high     { background:#f97316; box-shadow:0 0 6px #f97316; }
-  .dot-medium   { background:#eab308; }
-  .dot-low      { background:#22c55e; }
-
-  /* ── Filter bar ── */
-  .filter-bar { display:flex; gap:8px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; }
-  .filter-bar::-webkit-scrollbar { display:none; }
-  .filter-chip {
-    background:var(--surface2); border:1px solid var(--border); border-radius:20px;
-    padding:5px 14px; font-size:12px; color:var(--muted); cursor:pointer;
-    white-space:nowrap; transition:all .2s; font-family:var(--font-body);
-  }
-  .filter-chip.active { background:rgba(240,165,0,.15); border-color:var(--accent); color:var(--accent); }
-
-  /* ── Chart ── */
-  .chart-wrap { padding:16px; background:var(--surface); border-bottom:1px solid var(--border); }
-  .chart-title { font-family:var(--font-head); font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
-  .chart-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
-  .chart-label { font-family:var(--font-head); font-size:13px; color:var(--text); width:90px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .chart-bar-bg { flex:1; background:var(--surface2); border-radius:4px; height:18px; overflow:hidden; }
-  .chart-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:11px; font-weight:600; font-family:var(--font-head); transition:width .5s cubic-bezier(.4,0,.2,1); }
-  .chart-count { font-family:var(--font-head); font-size:13px; font-weight:700; width:24px; text-align:right; flex-shrink:0; }
-
-  /* ── Stats bar ── */
-  .stats-bar { display:flex; padding:12px 16px; gap:12px; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; }
-  .stat-card { flex:1; background:var(--surface2); border-radius:10px; padding:10px 12px; border:1px solid var(--border); }
-  .stat-value { font-family:var(--font-head); font-size:22px; font-weight:700; }
-  .stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
-  .stat-critical .stat-value { color:#ef4444; }
-  .stat-high .stat-value    { color:#f97316; }
-  .stat-total .stat-value   { color:var(--accent); }
-
-  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
-
-  /* ── Detail panel ── */
-  .detail-panel {
-    position: absolute; inset: 0; background: var(--bg);
-    transform: translateX(100%); transition: transform .25s cubic-bezier(.4,0,.2,1);
-    display: flex; flex-direction: column; z-index: 10;
-  }
-  .detail-panel.open { transform: translateX(0); }
-  .detail-header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-  }
-  .back-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px; display: flex; }
-  .detail-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-  .detail-content { flex: 1; overflow-y: auto; padding: 16px; }
-  .detail-content::-webkit-scrollbar { width: 3px; }
-  .detail-content::-webkit-scrollbar-thumb { background: var(--border); }
-
-  .field-block { margin-bottom: 16px; }
-  .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .field-value { font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); }
-  .field-value.big { font-size: 26px; color: var(--accent); }
-  .field-link {
-    display: inline-flex; align-items: center; gap: 6px; color: #3b82f6;
-    font-size: 14px; text-decoration: none; word-break: break-all;
-    padding: 8px 12px; background: rgba(59,130,246,.08); border-radius: 8px;
-    border: 1px solid rgba(59,130,246,.2); width: 100%;
-  }
-  .field-link:hover { background: rgba(59,130,246,.15); }
-
-  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-
-  /* ── Reiteradas table ── */
-  .reit-header { font-family: var(--font-head); font-size: 14px; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-  .reit-count { background: rgba(239,68,68,.15); color: var(--danger); border: 1px solid rgba(239,68,68,.3); border-radius: 20px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
-  .reit-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .reit-table th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; padding: 8px 6px; border-bottom: 1px solid var(--border); }
-  .reit-table td { padding: 10px 6px; border-bottom: 1px solid rgba(42,50,68,.5); color: var(--text); }
-  .reit-table tr:last-child td { border-bottom: none; }
-  .reit-table .cd-cell { font-family: var(--font-head); font-weight: 700; color: var(--accent); }
-  .no-items { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; }
-
-  /* ── Info grid ── */
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-  .info-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
-  .info-card .value { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--accent); }
-
-  /* ── Bottom nav ── */
-  nav {
-    background: var(--surface); border-top: 1px solid var(--border);
-    display: flex; flex-shrink: 0;
-  }
-  .nav-btn {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-    padding: 10px 0 12px; background: none; border: none; cursor: pointer;
-    color: var(--muted); font-family: var(--font-body); font-size: 11px;
-    transition: color .2s; position: relative;
-  }
-  .nav-btn.active { color: var(--text); }
-  .nav-btn.active::after {
-    content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
-    height: 2px; background: var(--accent); border-radius: 2px 2px 0 0;
-  }
-  .nav-btn svg { display: block; }
-
-  /* ── Occurrence detail modal ── */
-  .occur-modal {
-    position:absolute; inset:0; background:var(--bg); z-index:30;
-    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
-    display:flex; flex-direction:column;
-  }
-  .occur-modal.open { transform:translateX(0); }
-  .occur-modal-header {
-    background:var(--surface); border-bottom:1px solid var(--border);
-    padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0;
-  }
-  .occur-modal-content { flex:1; overflow-y:auto; padding:16px; }
-  .occur-row { cursor:pointer; transition:background .15s; }
-  .occur-row:hover { background:var(--surface2); }
-  .occur-row td { padding:10px 6px !important; }
-
-  /* ── Visão Geral ── */
-  .alim-item { display:flex; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; gap:10px; transition:background .15s; animation:fadeUp .3s both; }
-  .alim-item:hover { background:var(--surface2); }
-  .alim-info { flex:1; min-width:0; }
-  .alim-name { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--text); letter-spacing:.5px; }
-  .alim-bar-wrap { margin-top:5px; }
-  .alim-bar-bg { background:var(--surface2); border-radius:4px; height:10px; overflow:hidden; }
-  .alim-bar-fill { height:100%; border-radius:4px; transition:width .5s cubic-bezier(.4,0,.2,1); }
-  .alim-bar-info { display:flex; justify-content:space-between; margin-top:3px; }
-  .alim-cds { font-size:11px; color:var(--muted); }
-  .alim-lvl { font-size:11px; font-weight:700; }
-  .alim-badge { border-radius:20px; padding:4px 10px; font-size:13px; font-weight:700; font-family:var(--font-head); border:1px solid; flex-shrink:0; }
-
-  /* ── Alimentador detail panel ── */
-  .alim-panel {
-    position:absolute; inset:0; background:var(--bg);
-    transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
-    display:flex; flex-direction:column; z-index:10;
-  }
-  .alim-panel.open { transform:translateX(0); }
-  .alim-panel-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
-  .alim-panel-content { flex:1; overflow-y:auto; }
-  .alim-panel-content::-webkit-scrollbar { width:3px; }
-  .alim-panel-content::-webkit-scrollbar-thumb { background:var(--border); }
-  .alim-stats { display:flex; gap:8px; padding:10px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
-
-  /* ── Share button ── */
-  .share-btn {
-    display:flex; align-items:center; gap:8px; width:100%;
-    background:rgba(240,165,0,.08); border:1px solid rgba(240,165,0,.25);
-    border-radius:10px; padding:12px 16px; cursor:pointer;
-    color:var(--accent); font-family:var(--font-head); font-size:15px; font-weight:600;
-    letter-spacing:.5px; transition:background .2s; margin-bottom:16px;
-  }
-  .share-btn:hover { background:rgba(240,165,0,.15); }
-  .share-btn svg { flex-shrink:0; }
-  .copied-msg { text-align:center; font-size:12px; color:var(--green); margin-top:-10px; margin-bottom:12px; opacity:0; transition:opacity .3s; }
-  .copied-msg.show { opacity:1; }
-
-  /* ── Empty ── */
-  .empty { text-align: center; padding: 60px 24px; color: var(--muted); font-size: 14px; }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; }
-
-  /* ── Count bar ── */
-  .count-bar { padding: 8px 16px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface); }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  #app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;position:relative;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .logo{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:2px;color:var(--accent);}
+  .logo span{color:var(--muted);font-weight:500;font-size:13px;display:block;letter-spacing:1px;margin-top:-2px;}
+  .header-right{display:flex;gap:10px;align-items:center;}
+  .icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:8px;transition:color .2s,background .2s;}
+  .icon-btn:hover{color:var(--accent);background:rgba(240,165,0,.08);}
+  .icon-btn svg{display:block;}
+  .search-wrap{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
+  .search-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 14px 9px 38px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border .2s;}
+  .search-wrap input:focus{border-color:var(--accent);}
+  .search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+  .content{flex:1;overflow-y:auto;padding:0;}
+  .content::-webkit-scrollbar{width:3px;}
+  .content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .status-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:12px;color:var(--muted);font-size:14px;}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .setup-banner{margin:16px;padding:16px;background:linear-gradient(135deg,rgba(240,165,0,.12),rgba(224,92,0,.08));border:1px solid rgba(240,165,0,.3);border-radius:12px;}
+  .setup-banner h3{font-family:var(--font-head);font-size:16px;color:var(--accent);margin-bottom:8px;}
+  .setup-banner p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+  .setup-banner input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;margin-bottom:8px;}
+  .setup-banner input:focus{border-color:var(--accent);}
+  .btn-primary{background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 18px;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:opacity .2s;}
+  .btn-primary:hover{opacity:.85;}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;animation:fadeUp .3s both;}
+  .list-item:hover{background:var(--surface2);}
+  .item-left{flex:1;min-width:0;}
+  .item-cd{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);letter-spacing:.5px;}
+  .item-alim{font-size:12px;color:var(--muted);margin-top:2px;}
+  .badge{display:flex;align-items:center;gap:5px;background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:4px 10px;font-size:13px;font-weight:600;font-family:var(--font-head);white-space:nowrap;flex-shrink:0;}
+  .badge.critical{background:rgba(239,68,68,.2);color:#ef4444;border-color:rgba(239,68,68,.4);}
+  .badge.high{background:rgba(249,115,22,.2);color:#f97316;border-color:rgba(249,115,22,.4);}
+  .badge.medium{background:rgba(234,179,8,.2);color:#eab308;border-color:rgba(234,179,8,.4);}
+  .badge.low{background:rgba(34,197,94,.2);color:#22c55e;border-color:rgba(34,197,94,.4);}
+  .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:2px;}
+  .dot-critical{background:#ef4444;box-shadow:0 0 6px #ef4444;}
+  .dot-high{background:#f97316;box-shadow:0 0 6px #f97316;}
+  .dot-medium{background:#eab308;}
+  .dot-low{background:#22c55e;}
+  .arrow-icon{color:var(--muted);flex-shrink:0;margin-left:8px;}
+  .filter-bar{display:flex;gap:8px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;}
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .filter-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font-body);}
+  .filter-chip.active{background:rgba(240,165,0,.15);border-color:var(--accent);color:var(--accent);}
+  .chart-wrap{padding:16px;background:var(--surface);border-bottom:1px solid var(--border);}
+  .chart-title{font-family:var(--font-head);font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+  .chart-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .chart-label{font-family:var(--font-head);font-size:13px;color:var(--text);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chart-bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:18px;overflow:hidden;}
+  .chart-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;font-family:var(--font-head);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .chart-count{font-family:var(--font-head);font-size:13px;font-weight:700;width:24px;text-align:right;flex-shrink:0;}
+  .stats-bar{display:flex;padding:12px 16px;gap:12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .stat-card{flex:1;background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border);}
+  .stat-value{font-family:var(--font-head);font-size:22px;font-weight:700;}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+  .stat-critical .stat-value{color:#ef4444;}
+  .stat-high .stat-value{color:#f97316;}
+  .stat-total .stat-value{color:var(--accent);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .detail-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:10;}
+  .detail-panel.open{transform:translateX(0);}
+  .detail-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .back-btn{background:none;border:none;color:var(--accent);cursor:pointer;padding:4px;display:flex;}
+  .detail-title{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:1px;}
+  .detail-content{flex:1;overflow-y:auto;padding:16px;}
+  .detail-content::-webkit-scrollbar{width:3px;}
+  .detail-content::-webkit-scrollbar-thumb{background:var(--border);}
+  .field-block{margin-bottom:16px;}
+  .field-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+  .field-value{font-family:var(--font-head);font-size:18px;font-weight:600;color:var(--text);}
+  .field-link{display:inline-flex;align-items:center;gap:6px;color:#3b82f6;font-size:14px;text-decoration:none;word-break:break-all;padding:8px 12px;background:rgba(59,130,246,.08);border-radius:8px;border:1px solid rgba(59,130,246,.2);width:100%;}
+  .field-link:hover{background:rgba(59,130,246,.15);}
+  .divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+  .reit-header{font-family:var(--font-head);font-size:14px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .reit-count{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:2px 10px;font-size:13px;font-weight:700;}
+  .reit-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .reit-table th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.8px;padding:8px 6px;border-bottom:1px solid var(--border);}
+  .reit-table td{padding:10px 6px;border-bottom:1px solid rgba(42,50,68,.5);color:var(--text);}
+  .reit-table tr:last-child td{border-bottom:none;}
+  .no-items{text-align:center;color:var(--muted);font-size:13px;padding:24px;}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;}
+  .info-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+  .info-card .value{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--accent);}
+  nav{background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;}
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 10px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--font-body);font-size:10px;transition:color .2s;position:relative;}
+  .nav-btn.active{color:var(--text);}
+  .nav-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:2px 2px 0 0;}
+  .nav-btn svg{display:block;}
+  .occur-modal{position:absolute;inset:0;background:var(--bg);z-index:30;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+  .occur-modal.open{transform:translateX(0);}
+  .occur-modal-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .occur-modal-content{flex:1;overflow-y:auto;padding:16px;}
+  .occur-row{cursor:pointer;transition:background .15s;}
+  .occur-row:hover{background:var(--surface2);}
+  .occur-row td{padding:10px 6px !important;}
+  .alim-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;gap:10px;transition:background .15s;animation:fadeUp .3s both;}
+  .alim-item:hover{background:var(--surface2);}
+  .alim-info{flex:1;min-width:0;}
+  .alim-name{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);letter-spacing:.5px;}
+  .alim-bar-wrap{margin-top:5px;}
+  .alim-bar-bg{background:var(--surface2);border-radius:4px;height:10px;overflow:hidden;}
+  .alim-bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .alim-bar-info{display:flex;justify-content:space-between;margin-top:3px;}
+  .alim-cds{font-size:11px;color:var(--muted);}
+  .alim-lvl{font-size:11px;font-weight:700;}
+  .alim-badge{border-radius:20px;padding:4px 10px;font-size:13px;font-weight:700;font-family:var(--font-head);border:1px solid;flex-shrink:0;}
+  .alim-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:10;}
+  .alim-panel.open{transform:translateX(0);}
+  .alim-panel-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .alim-panel-content{flex:1;overflow-y:auto;}
+  .alim-panel-content::-webkit-scrollbar{width:3px;}
+  .alim-panel-content::-webkit-scrollbar-thumb{background:var(--border);}
+  .alim-stats{display:flex;gap:8px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--border);}
+  .share-btn{display:flex;align-items:center;gap:8px;width:100%;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.25);border-radius:10px;padding:12px 16px;cursor:pointer;color:var(--accent);font-family:var(--font-head);font-size:15px;font-weight:600;letter-spacing:.5px;transition:background .2s;margin-bottom:16px;}
+  .share-btn:hover{background:rgba(240,165,0,.15);}
+  .share-btn svg{flex-shrink:0;}
+  .copied-msg{text-align:center;font-size:12px;color:var(--green);margin-top:-10px;margin-bottom:12px;opacity:0;transition:opacity .3s;}
+  .copied-msg.show{opacity:1;}
+  .empty{text-align:center;padding:60px 24px;color:var(--muted);font-size:14px;}
+  .empty-icon{font-size:36px;margin-bottom:12px;}
+  .count-bar{padding:8px 16px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface);}
 </style>
 </head>
 <body>
@@ -277,55 +144,38 @@
   <header>
     <div class="logo">COSAMPA<span>Rede Elétrica</span></div>
     <div class="header-right">
-      <button class="icon-btn" id="refreshBtn" title="Atualizar dados">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-        </svg>
+      <button class="icon-btn" id="refreshBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       </button>
-      <button class="icon-btn" id="settingsBtn" title="Configurar planilha">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-        </svg>
+      <button class="icon-btn" id="settingsBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
     </div>
   </header>
-
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" placeholder="Buscar por CD ou Alimentador…">
   </div>
-
   <div class="content" id="mainContent"></div>
 
-  <!-- Detail Panel -->
   <div class="detail-panel" id="detailPanel">
     <div class="detail-header">
-      <button class="back-btn" id="backBtn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
+      <button class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-title" id="detailTitle"></span>
     </div>
     <div class="detail-content" id="detailContent"></div>
-  </div>
-
-  <!-- Occurrence detail modal - inside detail panel -->
-  <div class="occur-modal" id="occurModal" style="position:absolute;inset:0;z-index:20;">
-    <div class="occur-modal-header">
-      <button class="back-btn" id="occurBackBtn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <span class="detail-title" id="occurTitle"></span>
+    <div class="occur-modal" id="occurModal">
+      <div class="occur-modal-header">
+        <button class="back-btn" id="occurBackBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="detail-title" id="occurTitle"></span>
+      </div>
+      <div class="occur-modal-content" id="occurContent"></div>
     </div>
-    <div class="occur-modal-content" id="occurContent"></div>
   </div>
 
-  <!-- Alimentador detail panel -->
   <div class="alim-panel" id="alimentadorPanel">
     <div class="alim-panel-header">
-      <button class="back-btn" id="alimentadorBackBtn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
+      <button class="back-btn" id="alimentadorBackBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-title" id="alimentadorTitle"></span>
     </div>
     <div class="alim-stats" id="alimentadorStats"></div>
@@ -334,122 +184,76 @@
 
   <nav>
     <button class="nav-btn active" data-tab="visao-geral">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Visão Geral
     </button>
     <button class="nav-btn" data-tab="reiteradas">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Reiteradas
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Reit. BT
+    </button>
+    <button class="nav-btn" data-tab="reiteradasMT">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Reit. MT
     </button>
     <button class="nav-btn" data-tab="mt">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Loc. MT
     </button>
     <button class="nav-btn" data-tab="bt">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       Loc. BT
     </button>
   </nav>
 </div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
 const CONFIG_KEY = 'cosampa_sheet_id';
 const DEFAULT_SHEET_ID = '14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y';
 
-// ── Static data (MT e BT fixos para performance no celular) ───────────────────
-// BT — carregado sob demanda do CSV no GitHub
-let BT_DATA = null;
-let BT_LOADING = false;
+let BT_DATA = null, BT_LOADING = false;
 const BT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/Cosampa%20Maps%20-%20BT.csv';
-
 async function loadBTIfNeeded() {
-  if (BT_DATA !== null) return;
-  if (BT_LOADING) return;
+  if (BT_DATA !== null || BT_LOADING) return;
   BT_LOADING = true;
   try {
     const resp = await fetch(BT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const text = await resp.text();
-    const lines = text.trim().split('\n').slice(1);
-    console.log('BT lines loaded:', lines.length);
-    BT_DATA = lines.map(line => {
-      const cols = [];
-      let cur = '', inQ = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') { inQ = !inQ; }
-        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-        else { cur += ch; }
-      }
-      cols.push(cur.trim());
-      return { cd: cols[0]||'', gps: cols[1]||'', alimentador: cols[2]||'', clientes: cols[3]||'', potencia: cols[4]||'' };
-    }).filter(r => r.cd);
-  } catch(e) {
-    console.error('BT load error:', e);
-    BT_DATA = [];
-    state.btError = 'Erro ao carregar BT: ' + e.message;
-  }
+    const lines = (await resp.text()).trim().split('\n').slice(1);
+    BT_DATA = lines.map(line => { const c=parseCSVLine(line); return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||'',clientes:c[3]||'',potencia:c[4]||''}; }).filter(r=>r.cd);
+  } catch(e) { BT_DATA=[]; state.btError='Erro ao carregar BT: '+e.message; }
   BT_LOADING = false;
 }
 
-
-// MT — carregado sob demanda do CSV no GitHub
-let MT_DATA = null;
-let MT_LOADING = false;
+let MT_DATA = null, MT_LOADING = false;
 const MT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/BASE%20-%20MT.csv';
-
 async function loadMTIfNeeded() {
-  if (MT_DATA !== null) return;
-  if (MT_LOADING) return;
+  if (MT_DATA !== null || MT_LOADING) return;
   MT_LOADING = true;
   try {
     const resp = await fetch(MT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const text = await resp.text();
-    const lines = text.trim().split('\n').slice(1);
-    console.log('MT lines loaded:', lines.length);
-    MT_DATA = lines.map(line => {
-      // robust CSV parse handling quoted fields
-      const cols = [];
-      let cur = '', inQ = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') { inQ = !inQ; }
-        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-        else { cur += ch; }
-      }
-      cols.push(cur.trim());
-      return { cd: cols[0]||'', gps: cols[1]||'', alimentador: cols[2]||'' };
-    }).filter(r => r.cd);
-  } catch(e) {
-    console.error('MT load error:', e);
-    MT_DATA = [];
-    state.mtError = 'Erro ao carregar MT: ' + e.message;
-  }
+    const lines = (await resp.text()).trim().split('\n').slice(1);
+    MT_DATA = lines.map(line => { const c=parseCSVLine(line); return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||''}; }).filter(r=>r.cd);
+  } catch(e) { MT_DATA=[]; state.mtError='Erro ao carregar MT: '+e.message; }
   MT_LOADING = false;
 }
 
-// ── State ─────────────────────────────────────────────────────────────────────
+function parseCSVLine(line) {
+  const cols=[]; let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}else{cur+=ch;}}
+  cols.push(cur.trim()); return cols;
+}
+
 let state = {
-  tab: 'visao-geral',
-  search: '',
-  data: { reiteradas: [], mt: [], bt: [] },
-  loaded: false,
-  loading: false,
-  sheetId: localStorage.getItem(CONFIG_KEY) || DEFAULT_SHEET_ID,
-  periodFilter: 'all',  // all | 30 | 90 | 180
-  showChart: true,
+  tab:'visao-geral', search:'',
+  data:{reiteradas:[],reiteradasMT:[],mt:[],bt:[]},
+  loaded:false, loading:false,
+  sheetId: localStorage.getItem(CONFIG_KEY)||DEFAULT_SHEET_ID,
+  periodFilter:'all',
 };
 
-// ── Sheet tab names ────────────────────────────────────────────────────────────
-const SHEET_TABS = {
-  reiteradas: 'Reiterada',
-  mt:         'MT',
-  bt:         'BT',
-};
+const SHEET_TABS = { reiteradas:'Reiterada', reiteradasMT:'Reiteradas MT', mt:'MT', bt:'BT' };
 
-// ── Fetch CSV from Google Sheets ──────────────────────────────────────────────
 async function fetchSheet(sheetId, tabName) {
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
   const resp = await fetch(url);
@@ -460,714 +264,485 @@ async function fetchSheet(sheetId, tabName) {
 function parseCSV(text) {
   const lines = text.trim().split('\n');
   if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
   return lines.slice(1).map(line => {
-    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim();
-    });
+    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+    const obj={};
+    headers.forEach((h,i)=>{ obj[h]=(cols[i]||'').replace(/^"|"$/g,'').trim(); });
     return obj;
   });
 }
 
-// ── Load data (only Reiteradas from sheet; MT e BT são estáticos) ────────────
-async function loadData() {
-  if (!state.sheetId) { render(); return; }
-  state.loading = true; render();
-  try {
-    const reiteradas = await fetchSheet(state.sheetId, SHEET_TABS.reiteradas);
-    state.data = { reiteradas, mt: [], bt: [] };
-    // Pre-build groupedReiteradas for visao-geral use
-    const grouped = {};
-    reiteradas.forEach(r => {
-      const cd = col(r,'CD','Código','Code','cd');
-      const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
-      if (!cd) return;
-      if (!grouped[cd]) grouped[cd] = { cd, alim, count:0, rows:[] };
-      grouped[cd].count++;
-      grouped[cd].rows.push(r);
-    });
-    Object.values(grouped).forEach(g => {
-      const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
-      const days = dates.map(d => daysSince(d)).filter(d => d !== null);
-      g.minDays = days.length ? Math.min(...days) : null;
-      g.level = alertLevel(g.count, g.minDays);
-    });
-    state.groupedReiteradas = grouped;
-    state.loaded = true;
-  } catch(e) {
-    state.error = 'Erro ao carregar planilha. Verifique o ID e se ela está pública.';
-  }
-  state.loading = false; render();
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function getRows() {
-  if (state.tab === 'mt') {
-    if (!state.search || state.search.length < 2) return [];
-    if (MT_DATA === null) return [];
-    const q = state.search.toLowerCase();
-    const results = MT_DATA.filter(r => 
-      (r.cd||'').toLowerCase().includes(q) || 
-      (r.alimentador||'').toLowerCase().includes(q)
-    );
-    return results.slice(0, 100);
-  }
-  if (state.tab === 'bt') {
-    if (!state.search || state.search.length < 2) return [];
-    if (BT_DATA === null) return [];
-    const q = state.search.toLowerCase();
-    return BT_DATA.filter(r =>
-      (r.cd||'').toLowerCase().includes(q) ||
-      (r.alimentador||'').toLowerCase().includes(q)
-    ).slice(0, 100);
-  }
-  // reiteradas — from sheet
-  const rows = state.data[state.tab] || [];
-  if (!state.search) return rows;
-  const q = state.search.toLowerCase();
-  return rows.filter(r =>
-    Object.values(r).some(v => v.toLowerCase().includes(q))
-  );
-}
-
-// Try to find the column name regardless of exact casing/spacing
 function col(row, ...names) {
   const keys = Object.keys(row);
-  for (const n of names) {
-    const found = keys.find(k => k.toLowerCase().replace(/\s/g,'') === n.toLowerCase().replace(/\s/g,''));
-    if (found && row[found]) return row[found];
+  for(const n of names){
+    const found=keys.find(k=>k.toLowerCase().replace(/\s/g,'')===n.toLowerCase().replace(/\s/g,''));
+    if(found&&row[found]) return row[found];
   }
   return '';
 }
 
-// ── Alert helpers ────────────────────────────────────────────────────────────
-function alertLevel(count, daysSinceLast) {
-  // Level based purely on total count — uniform and predictable
-  if (count >= 5) return 'critical';
-  if (count === 4) return 'high';
-  if (count === 3) return 'medium';
-  return 'low'; // 2
+function alertLevel(count) {
+  if(count>=5) return 'critical';
+  if(count===4) return 'high';
+  if(count===3) return 'medium';
+  return 'low';
 }
 
 function parseBRDate(str) {
-  if (!str) return null;
-  // formats: DD/MM/YYYY HH:mm or YYYY-MM-DD or DD/MM/YYYY
-  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
-  m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  if(!str) return null;
+  let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  m=str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return new Date(+m[1],+m[2]-1,+m[3]);
   return null;
 }
 
 function daysSince(dateStr) {
-  const d = parseBRDate(dateStr);
-  if (!d) return null;
-  return Math.floor((Date.now() - d.getTime()) / 86400000);
+  const d=parseBRDate(dateStr);
+  if(!d) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
 }
 
 function filterByPeriod(rows) {
-  if (state.periodFilter === 'all') return rows;
-  const days = parseInt(state.periodFilter);
-  const cutoff = Date.now() - days * 86400000;
-  return rows.filter(r => {
-    const d = parseBRDate(col(r,'Data','DATA','data'));
-    return d && d.getTime() >= cutoff;
+  if(state.periodFilter==='all') return rows;
+  const days=parseInt(state.periodFilter);
+  const cutoff=Date.now()-days*86400000;
+  return rows.filter(r=>{ const d=parseBRDate(col(r,'Data','DATA','data')); return d&&d.getTime()>=cutoff; });
+}
+
+// ── Group reiteradas by CD ────────────────────────────────────────────────────
+function buildGroups(rawRows, cdColNames) {
+  const grouped={};
+  rawRows.forEach(r=>{
+    const cd=col(r,...cdColNames);
+    const alim=col(r,'ALIMENTADOR','Alimentador','alimentador');
+    if(!cd) return;
+    if(!grouped[cd]) grouped[cd]={cd,alim,count:0,rows:[]};
+    grouped[cd].count++;
+    grouped[cd].rows.push(r);
   });
+  Object.values(grouped).forEach(g=>{
+    const dates=g.rows.map(r=>col(r,'Data','DATA','data')).filter(Boolean);
+    const days=dates.map(d=>daysSince(d)).filter(d=>d!==null);
+    g.minDays=days.length?Math.min(...days):null;
+    g.level=alertLevel(g.count);
+  });
+  return grouped;
+}
+
+function sortGroups(grouped, rawRows) {
+  const filteredRows=filterByPeriod(rawRows);
+  const filteredGrouped={};
+  filteredRows.forEach(r=>{
+    const cd=Object.values(grouped).find(g=>g.rows.includes(r))?.cd;
+    if(!cd) return;
+    if(!filteredGrouped[cd]) filteredGrouped[cd]={rows:[]};
+    filteredGrouped[cd].rows.push(r);
+  });
+  // simpler: just match by checking row reference
+  const lvlOrder={critical:0,high:1,medium:2,low:3};
+  return Object.values(grouped)
+    .filter(g=>{
+      if(g.count<=1) return false;
+      if(state.periodFilter==='all') return true;
+      return g.rows.some(r=>{ const d=parseBRDate(col(r,'Data','DATA','data')); return d&&d.getTime()>=(Date.now()-parseInt(state.periodFilter)*86400000); });
+    })
+    .sort((a,b)=>{
+      if(lvlOrder[a.level]!==lvlOrder[b.level]) return lvlOrder[a.level]-lvlOrder[b.level];
+      const ad=a.minDays!==null?a.minDays:99999;
+      const bd=b.minDays!==null?b.minDays:99999;
+      if(ad!==bd) return ad-bd;
+      return b.count-a.count;
+    });
+}
+
+async function loadData() {
+  if(!state.sheetId){render();return;}
+  state.loading=true; render();
+  try {
+    const [reiteradas, reiteradasMT] = await Promise.all([
+      fetchSheet(state.sheetId, SHEET_TABS.reiteradas),
+      fetchSheet(state.sheetId, SHEET_TABS.reiteradasMT),
+    ]);
+    state.data={reiteradas,reiteradasMT,mt:[],bt:[]};
+    state.groupedReiteradas=buildGroups(reiteradas,['CD','Código','Code','cd']);
+    state.groupedReiteradasMT=buildGroups(reiteradasMT,['ELEMENTO OPERADO','Elemento Operado','elemento operado','CD','cd']);
+    state.loaded=true;
+  } catch(e) { state.error='Erro ao carregar planilha. Verifique o ID e se ela está pública.'; }
+  state.loading=false; render();
+}
+
+function getRows() {
+  if(state.tab==='mt'){
+    if(!state.search||state.search.length<2||MT_DATA===null) return [];
+    const q=state.search.toLowerCase();
+    return MT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)).slice(0,100);
+  }
+  if(state.tab==='bt'){
+    if(!state.search||state.search.length<2||BT_DATA===null) return [];
+    const q=state.search.toLowerCase();
+    return BT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)).slice(0,100);
+  }
+  const rows=state.data[state.tab]||[];
+  if(!state.search) return rows;
+  const q=state.search.toLowerCase();
+  return rows.filter(r=>Object.values(r).some(v=>v.toLowerCase().includes(q)));
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
-  const main = document.getElementById('mainContent');
+  const main=document.getElementById('mainContent');
+  if(!state.sheetId){main.innerHTML=renderSetup();return;}
+  if(state.loading){main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando dados…</span></div>`;return;}
+  if(state.error){main.innerHTML=`<div class="status-box"><span style="color:var(--danger)">${state.error}</span><button class="btn-primary" onclick="showSetup()">Reconfigurar</button></div>`;return;}
 
-  if (!state.sheetId) { main.innerHTML = renderSetup(); return; }
-  if (state.loading) { main.innerHTML = `<div class="status-box"><div class="spinner"></div><span>Carregando dados…</span></div>`; return; }
-  if (state.error) { main.innerHTML = `<div class="status-box"><span style="color:var(--danger)">${state.error}</span><button class="btn-primary" onclick="showSetup()">Reconfigurar</button></div>`; return; }
+  if(state.tab==='visao-geral'){ renderVisaoGeral(main); return; }
 
-  const rows = getRows();
-
-  if (state.tab === 'visao-geral') {
-    renderVisaoGeral(main);
-    document.querySelectorAll('.list-item, .alim-item').forEach(el => {
-      el.addEventListener('click', () => openAlimentador(el.dataset.alim));
-    });
+  if(state.tab==='reiteradas'){
+    renderReiteradasTab(main, state.data.reiteradas, state.groupedReiteradas, 'reiteradas', ['CD','Código','Code','cd']);
     return;
   }
 
-  if (state.tab === 'reiteradas') {
-    // Group ALL rows first (count is always total, not filtered)
-    const grouped = {};
-    rows.forEach(r => {
-      const cd   = col(r,'CD','Código','Code','cd');
-      const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
-      if (!cd) return;
-      if (!grouped[cd]) grouped[cd] = { cd, alim, count: 0, rows: [] };
-      grouped[cd].count++;
-      grouped[cd].rows.push(r);
-    });
-
-    // Apply period filter only to determine recency/alert level
-    const filteredRows = filterByPeriod(rows);
-    const filteredGrouped = {};
-    filteredRows.forEach(r => {
-      const cd = col(r,'CD','Código','Code','cd');
-      if (!cd) return;
-      if (!filteredGrouped[cd]) filteredGrouped[cd] = { rows: [] };
-      filteredGrouped[cd].rows.push(r);
-    });
-
-    // Compute alert levels always from total count
-    Object.values(grouped).forEach(g => {
-      // Recency: use all rows (not filtered) for "X dias atrás"
-      const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
-      const days = dates.map(d => daysSince(d)).filter(d => d !== null);
-      g.minDays = days.length ? Math.min(...days) : null;
-      g.level = alertLevel(g.count, g.minDays);
-      // Period filter: show only CDs that have at least one occurrence in the period
-      const fg = filteredGrouped[g.cd];
-      g.inPeriod = state.periodFilter === 'all' || (fg && fg.rows.length > 0);
-    });
-
-    const sorted = Object.values(grouped)
-      .filter(g => g.count > 1 && g.inPeriod)
-      .sort((a, b) => {
-        const lvlOrder = {critical:0,high:1,medium:2,low:3};
-        if (lvlOrder[a.level] !== lvlOrder[b.level]) return lvlOrder[a.level] - lvlOrder[b.level];
-        // Within same level: most recent first
-        const aDate = a.minDays !== null ? a.minDays : 99999;
-        const bDate = b.minDays !== null ? b.minDays : 99999;
-        if (aDate !== bDate) return aDate - bDate;
-        return b.count - a.count;
-      });
-
-    state.groupedReiteradas = grouped;
-    state.sortedReiteradas = sorted;
-
-    // Stats
-    const critical = sorted.filter(g => g.level === 'critical').length;
-    const high     = sorted.filter(g => g.level === 'high').length;
-    const statsHtml = `
-      <div class="stats-bar">
-        <div class="stat-card stat-critical"><div class="stat-value">${critical}</div><div class="stat-label">Crítico</div></div>
-        <div class="stat-card stat-high"><div class="stat-value">${high}</div><div class="stat-label">Alto</div></div>
-        <div class="stat-card stat-total"><div class="stat-value">${sorted.length}</div><div class="stat-label">Total</div></div>
-      </div>`;
-
-    // Period filter chips
-    const filters = [
-      {val:'all',label:'Todos'},
-      {val:'30',label:'30 dias'},
-      {val:'90',label:'90 dias'},
-      {val:'180',label:'180 dias'},
-    ];
-    const filterHtml = `<div class="filter-bar">${filters.map(f =>
-      `<button class="filter-chip${state.periodFilter===f.val?' active':''}" onclick="setPeriod('${f.val}')">${f.label}</button>`
-    ).join('')}</div>`;
-
-    // Top 10 chart
-    const top10 = sorted.slice(0, 10);
-    const maxCount = top10.length ? top10[0].count : 1;
-    const levelColors = {critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
-    const chartHtml = top10.length ? `
-      <div class="chart-wrap">
-        <div class="chart-title">Top 10 mais reiterados</div>
-        ${top10.map(g => `
-          <div class="chart-bar-row">
-            <div class="chart-label">${g.cd}</div>
-            <div class="chart-bar-bg">
-              <div class="chart-bar-fill" style="width:${Math.round(g.count/maxCount*100)}%;background:${levelColors[g.level]};color:#000">
-                ${g.count >= 3 ? g.count : ''}
-              </div>
-            </div>
-            <div class="chart-count" style="color:${levelColors[g.level]}">${g.count}</div>
-          </div>`).join('')}
-      </div>` : '';
-
-    main.innerHTML = statsHtml + filterHtml + chartHtml + `
-      <div class="count-bar">${sorted.length} transformadores reiterados</div>
-      ${sorted.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado para este período</div>' : ''}
-      ${sorted.map((g,i) => renderReitItem(g,i)).join('')}
-    `;
-  } else {
-    if (state.tab === 'mt' && MT_DATA === null) {
-      loadMTIfNeeded().then(() => render());
-      main.innerHTML = `<div class="status-box"><div class="spinner"></div><span>Carregando MT…</span></div>`;
-      return;
-    }
-    if (state.tab === 'mt' && state.mtError) {
-      main.innerHTML = `<div class="status-box"><span style="color:var(--danger);text-align:center;padding:0 20px">${state.mtError}<br><br>Verifique se o arquivo BASE_-_MT.csv está no repositório.</span></div>`;
-      return;
-    }
-    // BT handled above
-    // Handle BT loading
-    if (state.tab === 'bt' && BT_DATA === null) {
-      loadBTIfNeeded().then(() => render());
-      main.innerHTML = `<div class="status-box"><div class="spinner"></div><span>Carregando BT…</span></div>`;
-      return;
-    }
-    if (state.tab === 'bt' && state.btError) {
-      main.innerHTML = `<div class="status-box"><span style="color:var(--danger);text-align:center;padding:0 20px">${state.btError}<br><br>Verifique se o arquivo está no repositório.</span></div>`;
-      return;
-    }
-    const totalCount = state.tab === 'mt' ? (MT_DATA ? MT_DATA.length : 0) : (BT_DATA ? BT_DATA.length : 0);
-    const showHint = (state.tab === 'mt' || state.tab === 'bt') && (!state.search || state.search.length < 2);
-    main.innerHTML = `
-      <div class="count-bar">${showHint ? totalCount.toLocaleString('pt-BR')+' registros — digite para buscar' : rows.length+' resultados'}</div>
-      ${showHint ? '<div class="empty"><div class="empty-icon">🔍</div>Digite o CD ou Alimentador para buscar</div>' : ''}
-      ${!showHint && rows.length === 0 ? '<div class="empty"><div class="empty-icon">📍</div>Nenhum resultado encontrado</div>' : ''}
-      ${rows.map((r,i) => renderLocItem(r,i)).join('')}
-    `;
+  if(state.tab==='reiteradasMT'){
+    renderReiteradasTab(main, state.data.reiteradasMT, state.groupedReiteradasMT, 'reiteradasMT', ['ELEMENTO OPERADO','Elemento Operado','elemento operado','CD','cd']);
+    return;
   }
 
-  // Attach click listeners
-  document.querySelectorAll('.list-item').forEach(el => {
-    el.addEventListener('click', () => openDetail(parseInt(el.dataset.idx)));
+  if(state.tab==='mt'){
+    if(MT_DATA===null){loadMTIfNeeded().then(()=>render());main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando MT…</span></div>`;return;}
+    if(state.mtError){main.innerHTML=`<div class="status-box"><span style="color:var(--danger)">${state.mtError}</span></div>`;return;}
+  }
+  if(state.tab==='bt'){
+    if(BT_DATA===null){loadBTIfNeeded().then(()=>render());main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando BT…</span></div>`;return;}
+    if(state.btError){main.innerHTML=`<div class="status-box"><span style="color:var(--danger)">${state.btError}</span></div>`;return;}
+  }
+
+  const rows=getRows();
+  const totalCount=state.tab==='mt'?(MT_DATA?MT_DATA.length:0):(BT_DATA?BT_DATA.length:0);
+  const showHint=!state.search||state.search.length<2;
+  main.innerHTML=`
+    <div class="count-bar">${showHint?totalCount.toLocaleString('pt-BR')+' registros — digite para buscar':rows.length+' resultados'}</div>
+    ${showHint?'<div class="empty"><div class="empty-icon">🔍</div>Digite o CD ou Alimentador para buscar</div>':''}
+    ${!showHint&&rows.length===0?'<div class="empty"><div class="empty-icon">📍</div>Nenhum resultado encontrado</div>':''}
+    ${rows.map((r,i)=>renderLocItem(r,i)).join('')}
+  `;
+  document.querySelectorAll('.list-item').forEach(el=>{
+    el.addEventListener('click',()=>openDetail(parseInt(el.dataset.idx)));
   });
 }
 
-function renderReitItem(g, i) {
-  const lvl = g.level || 'low';
-  const lvlLabel = {critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl];
-  const dotClass = 'dot-'+lvl;
-  const recency = g.minDays !== null ? (g.minDays === 0 ? 'hoje' : g.minDays <= 30 ? g.minDays+'d atrás' : '') : '';
-  return `
-    <div class="list-item" data-idx="${i}" data-type="reit">
-      <div class="item-left">
-        <div style="display:flex;align-items:center;gap:7px">
-          <div class="alert-dot ${dotClass}"></div>
-          <div class="item-cd">${g.cd}</div>
-        </div>
-        <div class="item-alim" style="padding-left:15px">${g.alim}${recency ? ' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>' : ''}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-        <div class="badge ${lvl}">${g.count}x</div>
-        <div style="font-size:10px;color:var(--muted);font-family:var(--font-head)">${lvlLabel}</div>
-      </div>
-      <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>`;
+function renderReiteradasTab(main, rawRows, grouped, tabKey, cdColNames) {
+  if(!grouped||!rawRows){main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando…</span></div>`;return;}
+  const sorted=sortGroups(grouped,rawRows);
+  if(tabKey==='reiteradas') state.sortedReiteradas=sorted;
+  else state.sortedReiteradasMT=sorted;
+
+  const critical=sorted.filter(g=>g.level==='critical').length;
+  const high=sorted.filter(g=>g.level==='high').length;
+  const levelColors={critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
+  const top10=sorted.slice(0,10);
+  const maxCount=top10.length?top10[0].count:1;
+
+  const statsHtml=`<div class="stats-bar">
+    <div class="stat-card stat-critical"><div class="stat-value">${critical}</div><div class="stat-label">Crítico</div></div>
+    <div class="stat-card stat-high"><div class="stat-value">${high}</div><div class="stat-label">Alto</div></div>
+    <div class="stat-card stat-total"><div class="stat-value">${sorted.length}</div><div class="stat-label">Total</div></div>
+  </div>`;
+
+  const filterHtml=`<div class="filter-bar">${[{val:'all',label:'Todos'},{val:'30',label:'30 dias'},{val:'90',label:'90 dias'},{val:'180',label:'180 dias'}].map(f=>
+    `<button class="filter-chip${state.periodFilter===f.val?' active':''}" onclick="setPeriod('${f.val}')">${f.label}</button>`
+  ).join('')}</div>`;
+
+  const chartHtml=top10.length?`<div class="chart-wrap">
+    <div class="chart-title">Top 10 mais reiterados</div>
+    ${top10.map(g=>`<div class="chart-bar-row">
+      <div class="chart-label">${g.cd}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(g.count/maxCount*100)}%;background:${levelColors[g.level]};color:#000">${g.count>=3?g.count:''}</div></div>
+      <div class="chart-count" style="color:${levelColors[g.level]}">${g.count}</div>
+    </div>`).join('')}
+  </div>`:'';
+
+  main.innerHTML=statsHtml+filterHtml+chartHtml+`
+    <div class="count-bar">${sorted.length} transformadores reiterados</div>
+    ${sorted.length===0?'<div class="empty"><div class="empty-icon">⚡</div>Nenhum resultado para este período</div>':''}
+    ${sorted.map((g,i)=>renderReitItem(g,i,tabKey)).join('')}
+  `;
+  document.querySelectorAll('.list-item').forEach(el=>{
+    el.addEventListener('click',()=>openDetailReit(parseInt(el.dataset.idx),el.dataset.tabkey));
+  });
 }
 
-function renderLocItem(r, i) {
-  const cd   = r.cd || col(r,'CD','Endereço Google Maps','Endereco','cd');
-  const alim = r.alimentador || col(r,'Alimentador','ALIMENTADOR','alimentador');
-  return `
-    <div class="list-item" data-idx="${i}">
-      <div class="item-left">
-        <div class="item-cd">${cd}</div>
-        <div class="item-alim">${alim}</div>
+function renderReitItem(g,i,tabKey) {
+  const lvl=g.level||'low';
+  const lvlLabel={critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl];
+  const recency=g.minDays!==null?(g.minDays===0?'hoje':g.minDays<=30?g.minDays+'d atrás':''):'';
+  return `<div class="list-item" data-idx="${i}" data-tabkey="${tabKey}">
+    <div class="item-left">
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="alert-dot dot-${lvl}"></div>
+        <div class="item-cd">${g.cd}</div>
       </div>
-      <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>`;
+      <div class="item-alim" style="padding-left:15px">${g.alim}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+      <div class="badge ${lvl}">${g.count}x</div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--font-head)">${lvlLabel}</div>
+    </div>
+    <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>`;
+}
+
+function renderLocItem(r,i) {
+  const cd=r.cd||col(r,'CD','Endereço Google Maps','Endereco','cd');
+  const alim=r.alimentador||col(r,'Alimentador','ALIMENTADOR','alimentador');
+  return `<div class="list-item" data-idx="${i}">
+    <div class="item-left">
+      <div class="item-cd">${cd}</div>
+      <div class="item-alim">${alim}</div>
+    </div>
+    <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>`;
 }
 
 // ── Detail ────────────────────────────────────────────────────────────────────
-function openDetail(idx) {
-  let r, cd, alim, relatedRows = [];
+function openDetailReit(idx, tabKey) {
+  const sorted=tabKey==='reiteradasMT'?state.sortedReiteradasMT:state.sortedReiteradas;
+  const grouped=tabKey==='reiteradasMT'?state.groupedReiteradasMT:state.groupedReiteradas;
+  if(!sorted) return;
+  const g=sorted[idx];
+  if(!g) return;
 
-  if (state.tab === 'reiteradas' && state.sortedReiteradas) {
-    const g = state.sortedReiteradas[idx];
-    if (!g) return;
-    // Sort rows by date descending — most recent first
-    const sortedRows = [...g.rows].sort((a, b) => {
-      const da = parseBRDate(col(a,'Data','DATA','data'));
-      const db = parseBRDate(col(b,'Data','DATA','data'));
-      if (!da && !db) return 0;
-      if (!da) return 1;
-      if (!db) return -1;
-      return db - da;
-    });
-    r = sortedRows[0];  // most recent occurrence
-    cd = g.cd;
-    alim = g.alim;
-    relatedRows = sortedRows;
-    state.currentRelatedRows = sortedRows;  // save for openOccurrence
-  } else {
-    const rows = getRows();
-    r = rows[idx];
-    if (!r) return;
-    cd   = r.cd || col(r,'CD','Endereço Google Maps','Endereco','cd') || '—';
-    alim = r.alimentador || col(r,'Alimentador','ALIMENTADOR','alimentador') || '—';
-  }
+  const sortedRows=[...g.rows].sort((a,b)=>{
+    const da=parseBRDate(col(a,'Data','DATA','data'));
+    const db=parseBRDate(col(b,'Data','DATA','data'));
+    if(!da&&!db) return 0; if(!da) return 1; if(!db) return -1;
+    return db-da;
+  });
+  state.currentRelatedRows=sortedRows;
+  state.currentTabKey=tabKey;
 
-  const gps  = r.gps || col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link','mapa','MAPA') || '';
-  const clientes = r.clientes || col(r,'Total Clientes','TOTAL CLIENTES','Clientes','clientes') || '';
-  const potencia = r.potencia || col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia') || '';
+  const r=sortedRows[0];
+  const cd=g.cd, alim=g.alim;
+  const gps=col(r,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO')||'';
+  const clientes=col(r,'Clientes','CLIENTES','Total Clientes','totalclientes')||'';
+  const municipio=col(r,'MUNICIPIO','Municipio','município','Município')||'';
+  const causa=col(r,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'';
+  const lvl=g.level||'';
 
-  document.getElementById('detailTitle').textContent = cd;
+  document.getElementById('detailTitle').textContent=cd;
 
-  // Gather extra fields for share
-  const municipio = col(r,'Municipio','MUNICIPIO','município','Município') || '';
-  const causa     = col(r,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '';
-  const countVal  = (state.tab === 'reiteradas' && relatedRows) ? relatedRows.length : '';
-  const lvl       = (state.tab === 'reiteradas' && state.groupedReiteradas && state.groupedReiteradas[cd]) 
-                    ? state.groupedReiteradas[cd].level : '';
+  let html=`<button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','','${gps}','${sortedRows.length}','${lvl}','${municipio}','${causa}')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    Copiar informações
+  </button>
+  <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
+  <div class="field-block"><div class="field-label">CD / Elemento</div><div class="field-value">${cd}</div></div>
+  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${alim}</div></div>`;
 
-  let html = `
-    <button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','${potencia}','${gps}','${countVal}','${lvl}','${municipio}','${causa}')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      Copiar informações
-    </button>
-    <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
-  `+`
-    <div class="field-block">
-      <div class="field-label">CD</div>
-      <div class="field-value">${cd}</div>
-    </div>
-    <div class="field-block">
-      <div class="field-label">Alimentador</div>
-      <div class="field-value">${alim}</div>
-    </div>`;
+  if(gps) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+    <a class="field-link" href="${gps}" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Abrir no Google Maps
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a></div>`;
 
-  if (gps) html += `
-    <div class="field-block">
-      <div class="field-label">Localização GPS</div>
-      <a class="field-link" href="${gps}" target="_blank">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Abrir no Google Maps
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-    </div>`;
+  // Show all fields from most recent row
+  const knownCols=['cd','alimentador','gps','localização','mapa','elemento operado','elementooperado'];
+  Object.entries(r).filter(([k])=>!knownCols.some(kc=>k.toLowerCase().replace(/\s/g,'').includes(kc.replace(/\s/g,'')))).forEach(([k,v])=>{
+    if(!v) return;
+    html+=`<div class="field-block"><div class="field-label">${k}</div><div class="field-value" style="font-size:15px">${v}</div></div>`;
+  });
 
-  if (clientes || potencia) html += `
-    <div class="info-grid">
-      ${clientes ? `<div class="info-card"><div class="label">Total Clientes</div><div class="value">${clientes}</div></div>` : ''}
-      ${potencia ? `<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>` : ''}
-    </div>`;
+  html+=`<hr class="divider">
+  <div class="reit-header">Ocorrências<span class="reit-count">${sortedRows.length}</span></div>
+  <table class="reit-table">
+    <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
+    <tbody>${sortedRows.map((rr,ri)=>`
+      <tr class="occur-row" onclick="openOccurrence(${ri})">
+        <td>${col(rr,'Data','DATA','data')}</td>
+        <td>${col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—'}</td>
+        <td>${col(rr,'MUNICIPIO','Municipio','município')||'—'}</td>
+        <td style="color:var(--accent);font-size:12px">›</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
 
-  // Show all remaining fields
-  const knownCols = ['cd','alimentador','gps','localização','total clientes','total potencia','ocorrencias','total','qtd'];
-  const extras = Object.entries(r).filter(([k]) => !knownCols.some(kc => k.toLowerCase().includes(kc)));
-  if (extras.length) {
-    html += `<hr class="divider">`;
-    extras.forEach(([k, v]) => {
-      if (!v) return;
-      html += `<div class="field-block"><div class="field-label">${k}</div><div class="field-value" style="font-size:15px">${v}</div></div>`;
-    });
-  }
-
-  // Reiteradas related section
-  if (state.tab === 'reiteradas' && relatedRows.length > 0) {
-    html += `
-      <hr class="divider">
-      <div class="reit-header">
-        Ocorrências
-        <span class="reit-count">${relatedRows.length}</span>
-      </div>
-      <table class="reit-table">
-        <thead><tr><th>Data</th><th>Clientes</th><th>Tipo de Causa</th></tr></thead>
-        <tbody>
-          ${relatedRows.map((rr, ri) => `
-            <tr class="occur-row" onclick="openOccurrence(${ri})">
-              <td>${col(rr,'Data','DATA','data')}</td>
-              <td>${col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes')}</td>
-              <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '—'}</td>
-              <td style="color:var(--accent);font-size:12px;padding-right:4px">›</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-  } else if (state.tab !== 'reiteradas') {
-    const related = state.data.reiteradas.filter(rr => col(rr,'CD','cd') === cd);
-    html += `
-      <hr class="divider">
-      <div class="reit-header">
-        Reiteradas relacionadas
-        <span class="reit-count">${related.length}</span>
-      </div>`;
-    if (related.length === 0) {
-      html += `<div class="no-items">Sem reiterações registradas</div>`;
-    } else {
-      html += `<table class="reit-table">
-        <thead><tr><th>Data</th><th>Clientes</th><th>Causa</th></tr></thead>
-        <tbody>
-          ${related.map((rr, ri) => `
-            <tr class="occur-row" onclick="openOccurrenceFromRelated(${ri}, '${cd}')">
-              <td>${col(rr,'Data','DATA','data')}</td>
-              <td>${col(rr,'Clientes','CLIENTES','Total Clientes')}</td>
-              <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','causa') || '—'}</td>
-              <td style="color:var(--accent);font-size:12px;padding-right:4px">›</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-    }
-  }
-
-  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailContent').innerHTML=html;
   document.getElementById('detailPanel').classList.add('open');
 }
 
-// ── Setup ─────────────────────────────────────────────────────────────────────
-function renderSetup() {
-  return `
-    <div class="setup-banner">
-      <h3>⚙️ Configurar Planilha</h3>
-      <p>Cole o <strong>ID da sua planilha</strong> do Google Sheets abaixo.<br>
-      O ID está na URL entre <code>/d/</code> e <code>/edit</code>.<br><br>
-      Certifique-se que a planilha está com acesso <strong>público (qualquer pessoa com o link pode ver)</strong>.</p>
-      <input type="text" id="sheetIdInput" placeholder="Ex: 14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y" value="${state.sheetId}">
-      <p style="margin-bottom:8px;font-size:12px;color:var(--muted)">Nomes das abas esperados: <strong>Reiteradas, MT, BT</strong></p>
-      <button class="btn-primary" onclick="saveAndLoad()">Carregar Dados</button>
-    </div>`;
+function openDetail(idx) {
+  const rows=getRows();
+  const r=rows[idx];
+  if(!r) return;
+  const cd=r.cd||col(r,'CD','Endereço Google Maps','Endereco','cd')||'—';
+  const alim=r.alimentador||col(r,'Alimentador','ALIMENTADOR','alimentador')||'—';
+  const gps=r.gps||col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link','mapa','MAPA')||'';
+  const clientes=r.clientes||col(r,'Total Clientes','TOTAL CLIENTES','Clientes','clientes')||'';
+  const potencia=r.potencia||col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia')||'';
+
+  document.getElementById('detailTitle').textContent=cd;
+  let html=`<button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','${potencia}','${gps}','','','','')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    Copiar informações
+  </button>
+  <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
+  <div class="field-block"><div class="field-label">CD</div><div class="field-value">${cd}</div></div>
+  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${alim}</div></div>`;
+
+  if(gps) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+    <a class="field-link" href="${gps}" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Abrir no Google Maps
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a></div>`;
+
+  if(clientes||potencia) html+=`<div class="info-grid">
+    ${clientes?`<div class="info-card"><div class="label">Total Clientes</div><div class="value">${clientes}</div></div>`:''}
+    ${potencia?`<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>`:''}
+  </div>`;
+
+  document.getElementById('detailContent').innerHTML=html;
+  document.getElementById('detailPanel').classList.add('open');
 }
 
-function showSetup() { state.sheetId = ''; render(); }
-
-function saveAndLoad() {
-  const id = document.getElementById('sheetIdInput')?.value?.trim();
-  if (!id) return;
-  state.sheetId = id;
-  state.error = null;
-  localStorage.setItem(CONFIG_KEY, id);
-  loadData();
-}
-
-// ── Events ────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    state.tab = btn.dataset.tab;
-    state.search = '';
-    document.getElementById('searchInput').value = '';
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
-  });
-});
-
-document.getElementById('searchInput').addEventListener('input', e => {
-  state.search = e.target.value;
-  render();
-});
-
-document.getElementById('alimentadorBackBtn').addEventListener('click', () => {
-  document.getElementById('alimentadorPanel').classList.remove('open');
-});
-
-document.getElementById('occurBackBtn').addEventListener('click', () => {
-  document.getElementById('occurModal').classList.remove('open');
-});
-
-document.getElementById('backBtn').addEventListener('click', () => {
-  document.getElementById('detailPanel').classList.remove('open');
-});
-
-document.getElementById('refreshBtn').addEventListener('click', () => {
-  state.error = null; loadData();
-});
-
-document.getElementById('settingsBtn').addEventListener('click', showSetup);
-
-// ── Share / Copy ─────────────────────────────────────────────────────────────
-function copyInfo(cd, alim, clientes, potencia, gps, count, level, municipio, causa) {
-  const lvlLabel = {critical:'🔴 Crítico',high:'🟠 Alto',medium:'🟡 Médio',low:'🟢 Baixo'}[level] || '';
-  let msg = `📋 *Informações — ${cd}*
-`;
-  msg += `*Alimentador:* ${alim}
-`;
-  if (municipio) msg += `*Município:* ${municipio}
-`;
-  if (clientes)  msg += `*Total Clientes:* ${clientes}
-`;
-  if (potencia)  msg += `*Total Potência:* ${potencia}
-`;
-  if (count)     msg += `*Reiterações:* ${count}x ${lvlLabel}
-`;
-  if (causa)     msg += `*Tipo de Causa:* ${causa}
-`;
-  if (gps)       msg += `*Localização:* ${gps}`;
-
-  navigator.clipboard.writeText(msg).then(() => {
-    const el = document.getElementById('copied-msg');
-    if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-  }).catch(() => {
-    // fallback
-    const ta = document.createElement('textarea');
-    ta.value = msg; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    const el = document.getElementById('copied-msg');
-    if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-  });
-}
-
-// ── Occurrence detail ────────────────────────────────────────────────────────
 function renderOccurrenceDetail(rr) {
-  const data     = col(rr,'Data','DATA','data') || '—';
-  const clientes = col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes') || '—';
-  const incid    = col(rr,'Tipo de Incidencia','TIPO DE INCIDENCIA','tipoincidencia','incidencia') || '';
-  const causa    = col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '';
-  const municipio= col(rr,'Municipio','MUNICIPIO','município','Município') || '';
-  const obs      = col(rr,'Observações','OBSERVAÇÕES','observacoes','obs','Observacoes') || '';
-  const mapa     = col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO') || '';
-  const cd       = col(rr,'CD','cd') || '';
-
-  let html = '';
-
-  // Fields
-  const fields = [
-    ['Data', data],
-    ['Clientes', clientes],
-    ['Tipo de Incidência', incid],
-    ['Tipo de Causa', causa],
-    ['Município', municipio],
+  const fields=[
+    ['Data',col(rr,'Data','DATA','data')],
+    ['Clientes',col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes')],
+    ['Tipo de Incidência',col(rr,'TIPO_INCIDENCIA','Tipo de Incidencia','TIPO DE INCIDENCIA','tipoincidencia','incidencia')],
+    ['Tipo de Causa',col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa')],
+    ['Município',col(rr,'MUNICIPIO','Municipio','município','Município')],
   ];
-  fields.forEach(([label, val]) => {
-    if (!val) return;
-    html += `<div class="field-block"><div class="field-label">${label}</div><div class="field-value" style="font-size:15px">${val}</div></div>`;
-  });
-
-  // Observations highlighted
-  if (obs) {
-    html += `
-      <hr class="divider">
-      <div class="field-label">Observações</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${obs}</div>
-    `;
-  }
-
-  // Map link
-  if (mapa) {
-    html += `
-      <hr class="divider">
-      <div class="field-label">Localização GPS</div>
-      <a class="field-link" href="${mapa}" target="_blank" style="margin-top:6px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Abrir no Google Maps
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>`;
-  }
-
+  let html='';
+  fields.forEach(([label,val])=>{ if(!val) return; html+=`<div class="field-block"><div class="field-label">${label}</div><div class="field-value" style="font-size:15px">${val}</div></div>`; });
+  const obs=col(rr,'OBSERVACOES','Observações','OBSERVAÇÕES','observacoes','obs')||'';
+  if(obs) html+=`<hr class="divider"><div class="field-label">Observações</div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${obs}</div>`;
+  const mapa=col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO')||'';
+  if(mapa) html+=`<hr class="divider"><div class="field-label">Localização GPS</div><a class="field-link" href="${mapa}" target="_blank" style="margin-top:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Abrir no Google Maps<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
   return html;
 }
 
 function openOccurrence(ri) {
-  const titleEl = document.getElementById('detailTitle');
-  const cd = titleEl ? titleEl.textContent : '';
-  // Use the same sorted rows that are displayed in the table
-  const rr = state.currentRelatedRows && state.currentRelatedRows[ri];
-  if (!rr) return;
-
-  const data = col(rr,'Data','DATA','data') || 'Ocorrência';
-  document.getElementById('occurTitle').textContent = cd + ' · ' + data;
-  document.getElementById('occurContent').innerHTML = renderOccurrenceDetail(rr);
+  const rr=state.currentRelatedRows&&state.currentRelatedRows[ri];
+  if(!rr) return;
+  const cd=document.getElementById('detailTitle').textContent;
+  const data=col(rr,'Data','DATA','data')||'Ocorrência';
+  document.getElementById('occurTitle').textContent=cd+' · '+data;
+  document.getElementById('occurContent').innerHTML=renderOccurrenceDetail(rr);
   document.getElementById('occurModal').classList.add('open');
 }
 
-function openOccurrenceFromRelated(ri, cd) {
-  const related = state.data.reiteradas.filter(rr => col(rr,'CD','cd') === cd);
-  const rr = related[ri];
-  if (!rr) return;
-  const data = col(rr,'Data','DATA','data') || 'Ocorrência';
-  document.getElementById('occurTitle').textContent = cd + ' · ' + data;
-  document.getElementById('occurContent').innerHTML = renderOccurrenceDetail(rr);
-  document.getElementById('occurModal').classList.add('open');
+function copyInfo(cd,alim,clientes,potencia,gps,count,level,municipio,causa) {
+  const lvlLabel={critical:'🔴 Crítico',high:'🟠 Alto',medium:'🟡 Médio',low:'🟢 Baixo'}[level]||'';
+  let msg=`📋 *Informações — ${cd}*\n*Alimentador:* ${alim}\n`;
+  if(municipio) msg+=`*Município:* ${municipio}\n`;
+  if(clientes) msg+=`*Total Clientes:* ${clientes}\n`;
+  if(potencia) msg+=`*Total Potência:* ${potencia}\n`;
+  if(count) msg+=`*Reiterações:* ${count}x ${lvlLabel}\n`;
+  if(causa) msg+=`*Tipo de Causa:* ${causa}\n`;
+  if(gps) msg+=`*Localização:* ${gps}`;
+  navigator.clipboard.writeText(msg).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  }).finally(()=>{
+    const el=document.getElementById('copied-msg');
+    if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
+  });
 }
 
-// ── Visão Geral ──────────────────────────────────────────────────────────────
+function renderSetup() {
+  return `<div class="setup-banner">
+    <h3>⚙️ Configurar Planilha</h3>
+    <p>Cole o <strong>ID da sua planilha</strong> do Google Sheets abaixo.</p>
+    <input type="text" id="sheetIdInput" placeholder="Ex: 14NLUj_..." value="${state.sheetId}">
+    <button class="btn-primary" onclick="saveAndLoad()">Carregar Dados</button>
+  </div>`;
+}
+function showSetup(){state.sheetId='';render();}
+function saveAndLoad(){const id=document.getElementById('sheetIdInput')?.value?.trim();if(!id)return;state.sheetId=id;state.error=null;localStorage.setItem(CONFIG_KEY,id);loadData();}
+
+// ── Visão Geral ───────────────────────────────────────────────────────────────
 function renderVisaoGeral(main) {
-  const rows = filterByPeriod(state.data.reiteradas || []);
-
-  // Group by CD first
-  const cdGrouped = {};
-  rows.forEach(r => {
-    const cd   = col(r,'CD','Código','Code','cd');
-    const alim = col(r,'Alimentador','ALIMENTADOR','alimentador');
-    if (!cd || !alim) return;
-    if (!cdGrouped[cd]) cdGrouped[cd] = { cd, alim, count: 0, rows: [] };
+  const rows=filterByPeriod(state.data.reiteradas||[]);
+  const cdGrouped={};
+  rows.forEach(r=>{
+    const cd=col(r,'CD','Código','Code','cd');
+    const alim=col(r,'Alimentador','ALIMENTADOR','alimentador');
+    if(!cd||!alim) return;
+    if(!cdGrouped[cd]) cdGrouped[cd]={cd,alim,count:0,rows:[]};
     cdGrouped[cd].count++;
     cdGrouped[cd].rows.push(r);
   });
-
-  // Group by alimentador
-  const alimentadores = {};
-  Object.values(cdGrouped).filter(g => g.count > 1).forEach(g => {
-    const a = g.alim;
-    if (!alimentadores[a]) alimentadores[a] = { name: a, cds: [], total: 0, critical:0, high:0, medium:0, low:0 };
-    const dates = g.rows.map(r => col(r,'Data','DATA','data')).filter(Boolean);
-    const days  = dates.map(d => daysSince(d)).filter(d => d !== null);
-    g.minDays   = days.length ? Math.min(...days) : null;
-    g.level     = alertLevel(g.count, g.minDays);
+  const alimentadores={};
+  Object.values(cdGrouped).filter(g=>g.count>1).forEach(g=>{
+    const a=g.alim;
+    if(!alimentadores[a]) alimentadores[a]={name:a,cds:[],total:0,critical:0,high:0,medium:0,low:0};
+    const dates=g.rows.map(r=>col(r,'Data','DATA','data')).filter(Boolean);
+    const days=dates.map(d=>daysSince(d)).filter(d=>d!==null);
+    g.minDays=days.length?Math.min(...days):null;
+    g.level=alertLevel(g.count);
     alimentadores[a].cds.push(g);
     alimentadores[a].total++;
     alimentadores[a][g.level]++;
   });
-
-  // Level for alimentador = worst cd level
-  const lvlOrder = {critical:0,high:1,medium:2,low:3};
-  const sortedAlim = Object.values(alimentadores).sort((a, b) => {
-    const la = a.critical>0?'critical':a.high>0?'high':a.medium>0?'medium':'low';
-    const lb = b.critical>0?'critical':b.high>0?'high':b.medium>0?'medium':'low';
-    if (lvlOrder[la] !== lvlOrder[lb]) return lvlOrder[la] - lvlOrder[lb];
-    return b.total - a.total;
+  const lvlOrder={critical:0,high:1,medium:2,low:3};
+  const sortedAlim=Object.values(alimentadores).sort((a,b)=>{
+    const la=a.critical>0?'critical':a.high>0?'high':a.medium>0?'medium':'low';
+    const lb=b.critical>0?'critical':b.high>0?'high':b.medium>0?'medium':'low';
+    if(lvlOrder[la]!==lvlOrder[lb]) return lvlOrder[la]-lvlOrder[lb];
+    return b.total-a.total;
   });
-
-  state.sortedAlimentadores = sortedAlim;
-  const maxTotal = sortedAlim.length ? sortedAlim[0].total : 1;
-  const levelColors = {critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
-  const levelLabels = {critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'};
-
-  const filterHtml = `<div class="filter-bar">${[{val:'all',label:'Todos'},{val:'30',label:'30 dias'},{val:'90',label:'90 dias'},{val:'180',label:'180 dias'}].map(f =>
-    `<button class="filter-chip${state.periodFilter===f.val?' active':''}" onclick="setPeriod('${f.val}')">${f.label}</button>`
-  ).join('')}</div>`;
-
-  main.innerHTML = filterHtml + `
-    <div class="count-bar">${sortedAlim.length} alimentadores com reiterações</div>
-    ${sortedAlim.map(a => {
-      const alimLevel = a.critical>0?'critical':a.high>0?'high':a.medium>0?'medium':'low';
-      const color = levelColors[alimLevel];
-      return `<div class="alim-item" data-alim="${a.name}">
-        <div class="alim-info">
-          <div class="alim-name">${a.name}</div>
-          <div class="alim-bar-wrap">
-            <div class="alim-bar-bg"><div class="alim-bar-fill" style="width:${Math.round(a.total/maxTotal*100)}%;background:${color}"></div></div>
-            <div class="alim-bar-info">
-              <div class="alim-cds">${a.total} CDs reiterados</div>
-              <div class="alim-lvl" style="color:${color}">${levelLabels[alimLevel]}</div>
-            </div>
-          </div>
+  state.sortedAlimentadores=sortedAlim;
+  const maxTotal=sortedAlim.length?sortedAlim[0].total:1;
+  const levelColors={critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
+  const levelLabels={critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'};
+  const filterHtml=`<div class="filter-bar">${[{val:'all',label:'Todos'},{val:'30',label:'30 dias'},{val:'90',label:'90 dias'},{val:'180',label:'180 dias'}].map(f=>`<button class="filter-chip${state.periodFilter===f.val?' active':''}" onclick="setPeriod('${f.val}')">${f.label}</button>`).join('')}</div>`;
+  main.innerHTML=filterHtml+`<div class="count-bar">${sortedAlim.length} alimentadores com reiterações</div>
+  ${sortedAlim.map(a=>{
+    const alimLevel=a.critical>0?'critical':a.high>0?'high':a.medium>0?'medium':'low';
+    const color=levelColors[alimLevel];
+    return `<div class="alim-item" data-alim="${a.name}">
+      <div class="alim-info">
+        <div class="alim-name">${a.name}</div>
+        <div class="alim-bar-wrap">
+          <div class="alim-bar-bg"><div class="alim-bar-fill" style="width:${Math.round(a.total/maxTotal*100)}%;background:${color}"></div></div>
+          <div class="alim-bar-info"><div class="alim-cds">${a.total} CDs reiterados</div><div class="alim-lvl" style="color:${color}">${levelLabels[alimLevel]}</div></div>
         </div>
-        <div class="alim-badge badge ${alimLevel}" style="background:rgba(${alimLevel==='critical'?'239,68,68':alimLevel==='high'?'249,115,22':alimLevel==='medium'?'234,179,8':'34,197,94'},.15);color:${color};border-color:${color}33">${a.total}</div>
-        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>`;
-    }).join('')}`;
+      </div>
+      <div class="alim-badge" style="background:rgba(${alimLevel==='critical'?'239,68,68':alimLevel==='high'?'249,115,22':alimLevel==='medium'?'234,179,8':'34,197,94'},.15);color:${color};border:1px solid ${color}44">${a.total}</div>
+      <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+  }).join('')}`;
+  document.querySelectorAll('.alim-item').forEach(el=>{
+    el.addEventListener('click',()=>openAlimentador(el.dataset.alim));
+  });
 }
 
 function openAlimentador(name) {
-  const a = (state.sortedAlimentadores || []).find(x => x.name === name);
-  if (!a) return;
-
-  const lvlOrder = {critical:0,high:1,medium:2,low:3};
-  const sortedCDs = [...a.cds].sort((x, y) => {
-    if (lvlOrder[x.level] !== lvlOrder[y.level]) return lvlOrder[x.level] - lvlOrder[y.level];
-    const xd = x.minDays !== null ? x.minDays : 99999;
-    const yd = y.minDays !== null ? y.minDays : 99999;
-    return xd - yd;
+  const a=(state.sortedAlimentadores||[]).find(x=>x.name===name);
+  if(!a) return;
+  const lvlOrder={critical:0,high:1,medium:2,low:3};
+  const sortedCDs=[...a.cds].sort((x,y)=>{
+    if(lvlOrder[x.level]!==lvlOrder[y.level]) return lvlOrder[x.level]-lvlOrder[y.level];
+    return (x.minDays??99999)-(y.minDays??99999);
   });
-
-  state.currentAlimCDs = sortedCDs;
-  document.getElementById('alimentadorTitle').textContent = name;
-
-  // Stats bar
-  const levelColors = {critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
-  document.getElementById('alimentadorStats').innerHTML = `
+  state.currentAlimCDs=sortedCDs;
+  document.getElementById('alimentadorTitle').textContent=name;
+  document.getElementById('alimentadorStats').innerHTML=`
     <div class="stat-card stat-total" style="flex:1"><div class="stat-value">${a.total}</div><div class="stat-label">CDs</div></div>
-    ${a.critical ? `<div class="stat-card stat-critical" style="flex:1"><div class="stat-value" style="color:#ef4444">${a.critical}</div><div class="stat-label">Crítico</div></div>` : ''}
-    ${a.high ? `<div class="stat-card stat-high" style="flex:1"><div class="stat-value" style="color:#f97316">${a.high}</div><div class="stat-label">Alto</div></div>` : ''}
-    ${a.medium ? `<div class="stat-card" style="flex:1"><div class="stat-value" style="color:#eab308">${a.medium}</div><div class="stat-label">Médio</div></div>` : ''}
-    ${a.low ? `<div class="stat-card" style="flex:1"><div class="stat-value" style="color:#22c55e">${a.low}</div><div class="stat-label">Baixo</div></div>` : ''}
-  `;
-
-  // CD list
-  document.getElementById('alimentadorContent').innerHTML = `
+    ${a.critical?`<div class="stat-card stat-critical" style="flex:1"><div class="stat-value" style="color:#ef4444">${a.critical}</div><div class="stat-label">Crítico</div></div>`:''}
+    ${a.high?`<div class="stat-card stat-high" style="flex:1"><div class="stat-value" style="color:#f97316">${a.high}</div><div class="stat-label">Alto</div></div>`:''}
+    ${a.medium?`<div class="stat-card" style="flex:1"><div class="stat-value" style="color:#eab308">${a.medium}</div><div class="stat-label">Médio</div></div>`:''}
+    ${a.low?`<div class="stat-card" style="flex:1"><div class="stat-value" style="color:#22c55e">${a.low}</div><div class="stat-label">Baixo</div></div>`:''}`;
+  document.getElementById('alimentadorContent').innerHTML=`
     <div class="count-bar">${sortedCDs.length} transformadores</div>
-    ${sortedCDs.map((g, i) => {
-      const recency = g.minDays !== null ? (g.minDays === 0 ? 'hoje' : g.minDays+'d atrás') : '';
-      return `<div class="list-item" data-alim-cd-idx="${i}" style="cursor:pointer">
+    ${sortedCDs.map((g,i)=>{
+      const recency=g.minDays!==null?(g.minDays===0?'hoje':g.minDays+'d atrás'):'';
+      return `<div class="list-item" data-alim-cd-idx="${i}">
         <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
           <div class="alert-dot dot-${g.level}"></div>
-          <div>
-            <div class="item-cd">${g.cd}</div>
-            <div class="item-alim">${recency ? '<span style="color:var(--muted);font-size:11px">'+recency+'</span>' : ''}</div>
-          </div>
+          <div><div class="item-cd">${g.cd}</div><div class="item-alim">${recency?'<span style="color:var(--muted);font-size:11px">'+recency+'</span>':''}</div></div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
           <div class="badge ${g.level}">${g.count}x</div>
@@ -1176,95 +751,53 @@ function openAlimentador(name) {
         <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </div>`;
     }).join('')}`;
-
-  // Attach click on CDs
-  document.querySelectorAll('[data-alim-cd-idx]').forEach(el => {
-    el.addEventListener('click', () => {
-      const idx = parseInt(el.dataset.alimentadorCdIdx || el.dataset.alimentCdIdx || el.getAttribute('data-alim-cd-idx'));
-      const g = state.currentAlimCDs[idx];
-      if (!g) return;
-      // Open detail panel directly
-      state.tab = 'reiteradas';
-      // Find this cd in sortedReiteradas
-      const allGrouped = state.groupedReiteradas || {};
-      const grp = allGrouped[g.cd];
-      if (!grp) return;
-      const sortedRows = [...grp.rows].sort((a, b) => {
-        const da = parseBRDate(col(a,'Data','DATA','data'));
-        const db = parseBRDate(col(b,'Data','DATA','data'));
-        if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
-        return db - da;
+  document.querySelectorAll('[data-alim-cd-idx]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const g=state.currentAlimCDs[parseInt(el.getAttribute('data-alim-cd-idx'))];
+      if(!g) return;
+      const grp=state.groupedReiteradas&&state.groupedReiteradas[g.cd];
+      if(!grp) return;
+      const sortedRows=[...grp.rows].sort((a,b)=>{
+        const da=parseBRDate(col(a,'Data','DATA','data'));
+        const db=parseBRDate(col(b,'Data','DATA','data'));
+        if(!da&&!db) return 0;if(!da) return 1;if(!db) return -1;return db-da;
       });
-      const r = sortedRows[0];
-      const cd   = grp.cd;
-      const alim = grp.alim;
-      const gps  = r.gps || col(r,'GPS','Localização','LOCALIZAÇÃO','GPS - BT','GPS - FUSIVEL','localizacao','link','mapa','MAPA') || '';
-      const clientes = col(r,'Total Clientes','TOTAL CLIENTES','Clientes','clientes') || '';
-      const potencia = col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia') || '';
-      const municipio = col(r,'Municipio','MUNICIPIO','município','Município') || '';
-      const causa = col(r,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa') || '';
-      const countVal = sortedRows.length;
-      const lvl = grp.level || '';
-
-      document.getElementById('detailTitle').textContent = cd;
-      let html = `
-        <button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','${potencia}','${gps}','${countVal}','${lvl}','${municipio}','${causa}')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar informações
-        </button>
-        <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
-        <div class="field-block"><div class="field-label">CD</div><div class="field-value">${cd}</div></div>
-        <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${alim}</div></div>`;
-      if (gps) html += `<div class="field-block"><div class="field-label">Localização GPS</div><a class="field-link" href="${gps}" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Abrir no Google Maps<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>`;
-      if (clientes||potencia) html += `<div class="info-grid">${clientes?`<div class="info-card"><div class="label">Total Clientes</div><div class="value">${clientes}</div></div>`:''} ${potencia?`<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>`:''}</div>`;
-      // Extra fields
-      const knownCols = ['cd','alimentador','gps','localização','total clientes','total potencia','ocorrencias','total','qtd'];
-      Object.entries(r).filter(([k]) => !knownCols.some(kc => k.toLowerCase().includes(kc))).forEach(([k,v]) => {
-        if (!v) return;
-        html += `<div class="field-block"><div class="field-label">${k}</div><div class="field-value" style="font-size:15px">${v}</div></div>`;
-      });
-      // Occurrences table
-      html += `<hr class="divider"><div class="reit-header">Ocorrências<span class="reit-count">${sortedRows.length}</span></div>
-        <table class="reit-table"><thead><tr><th>Data</th><th>Clientes</th><th>Tipo de Causa</th></tr></thead><tbody>
-        ${sortedRows.map((rr,ri) => `<tr class="occur-row" onclick="openOccurrenceFromGroup('${cd}',${ri})">
-          <td>${col(rr,'Data','DATA','data')}</td><td>${col(rr,'Clientes','CLIENTES','Total Clientes','totalclientes')}</td>
-          <td>${col(rr,'Tipo de Causa','TIPO DE CAUSA','tipodecausa','causa')||'—'}</td>
-          <td style="color:var(--accent);font-size:12px">›</td></tr>`).join('')}
-        </tbody></table>`;
-
-      document.getElementById('detailContent').innerHTML = html;
+      state.currentRelatedRows=sortedRows;
+      state.currentTabKey='reiteradas';
+      if(!state.sortedReiteradas) state.sortedReiteradas=[grp];
+      const fakeIdx=0;
+      // build a fake sorted with grp at position 0
+      const prevSorted=state.sortedReiteradas;
+      state.sortedReiteradas=[grp,...(state.sortedReiteradas||[]).filter(x=>x.cd!==g.cd)];
+      openDetailReit(0,'reiteradas');
+      state.sortedReiteradas=prevSorted;
       document.getElementById('detailPanel').classList.add('open');
     });
   });
-
   document.getElementById('alimentadorPanel').classList.add('open');
 }
 
-function openOccurrenceFromGroup(cd, ri) {
-  const grp = state.groupedReiteradas && state.groupedReiteradas[cd];
-  if (!grp) return;
-  const sortedRows = [...grp.rows].sort((a, b) => {
-    const da = parseBRDate(col(a,'Data','DATA','data'));
-    const db = parseBRDate(col(b,'Data','DATA','data'));
-    if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
-    return db - da;
+function setPeriod(val){state.periodFilter=val;render();}
+
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.tab=btn.dataset.tab;state.search='';
+    document.getElementById('searchInput').value='';
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('detailPanel').classList.remove('open');
+    document.getElementById('alimentadorPanel').classList.remove('open');
+    document.getElementById('occurModal').classList.remove('open');
+    render();
   });
-  state.currentRelatedRows = sortedRows;
-  const rr = sortedRows[ri];
-  if (!rr) return;
-  const data = col(rr,'Data','DATA','data') || 'Ocorrência';
-  document.getElementById('occurTitle').textContent = cd + ' · ' + data;
-  document.getElementById('occurContent').innerHTML = renderOccurrenceDetail(rr);
-  document.getElementById('occurModal').classList.add('open');
-}
+});
+document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;render();});
+document.getElementById('backBtn').addEventListener('click',()=>document.getElementById('detailPanel').classList.remove('open'));
+document.getElementById('occurBackBtn').addEventListener('click',()=>document.getElementById('occurModal').classList.remove('open'));
+document.getElementById('alimentadorBackBtn').addEventListener('click',()=>document.getElementById('alimentadorPanel').classList.remove('open'));
+document.getElementById('refreshBtn').addEventListener('click',()=>{state.error=null;loadData();});
+document.getElementById('settingsBtn').addEventListener('click',showSetup);
 
-// ── Period filter ────────────────────────────────────────────────────────────
-function setPeriod(val) {
-  state.periodFilter = val;
-  render();
-}
-
-// ── Init ──────────────────────────────────────────────────────────────────────
 loadData();
 </script>
 </body>
