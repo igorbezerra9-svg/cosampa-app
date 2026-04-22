@@ -603,6 +603,43 @@ function openDetail(idx) {
     ${potencia?`<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>`:''}
   </div>`;
 
+  // For MT/BT loc tabs: show related reiteradas
+  if (state.tab === 'mt' || state.tab === 'bt') {
+    const sourceData = state.tab === 'mt' ? state.groupedReiteradasMT : state.groupedReiteradas;
+    const cdKey = state.tab === 'mt' ? ['ELEMENTO OPERADO','Elemento Operado','elemento operado','CD','cd'] : ['CD','cd'];
+    const related = sourceData && sourceData[cd];
+    html += `<hr class="divider">`;
+    if (!related || related.count <= 1) {
+      html += `<div class="reit-header">Reiteradas relacionadas<span class="reit-count">0</span></div><div class="no-items">Sem reiterações registradas</div>`;
+    } else {
+      const sortedRows = [...related.rows].sort((a,b)=>{
+        const da=parseBRDate(col(a,'Data','DATA','data'));
+        const db=parseBRDate(col(b,'Data','DATA','data'));
+        if(!da&&!db) return 0;if(!da) return 1;if(!db) return -1;return db-da;
+      });
+      state.currentRelatedRows = sortedRows;
+      state.currentTabKey = state.tab === 'mt' ? 'reiteradasMT' : 'reiteradas';
+      const lvlColors = {critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
+      const lvl = related.level || 'low';
+      html += `<div class="reit-header">
+        Reiteradas relacionadas
+        <span class="reit-count">${related.count}</span>
+        <span class="badge ${lvl}" style="font-size:11px;padding:2px 8px">${{critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl]}</span>
+      </div>
+      <table class="reit-table">
+        <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
+        <tbody>${sortedRows.map((rr,ri)=>`
+          <tr class="occur-row" onclick="openOccurrence(${ri})">
+            <td>${col(rr,'Data','DATA','data')}</td>
+            <td>${col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—'}</td>
+            <td>${col(rr,'MUNICIPIO','Municipio','município')||'—'}</td>
+            <td style="color:var(--accent);font-size:12px">›</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    }
+  }
+
   document.getElementById('detailContent').innerHTML=html;
   document.getElementById('detailPanel').classList.add('open');
 }
