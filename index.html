@@ -137,12 +137,28 @@
   .empty{text-align:center;padding:60px 24px;color:var(--muted);font-size:14px;}
   .empty-icon{font-size:36px;margin-bottom:12px;}
   .count-bar{padding:8px 16px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface);}
+
+  /* ── Pull to refresh ── */
+  .ptr-indicator{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;font-size:13px;color:var(--muted);height:0;overflow:hidden;transition:height .2s;background:var(--surface);}
+  .ptr-indicator.visible{height:44px;}
+  .ptr-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+
+  /* ── Last update badge ── */
+  .update-badge{font-size:10px;color:var(--muted);opacity:.7;}
+
+  /* ── Offline banner ── */
+  .offline-banner{background:rgba(239,68,68,.1);border-bottom:1px solid rgba(239,68,68,.2);padding:6px 16px;font-size:12px;color:#ef4444;display:none;text-align:center;}
+  .offline-banner.show{display:block;}
+
+  /* ── Share alim button ── */
+  .share-alim-btn{display:flex;align-items:center;gap:6px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:7px 12px;cursor:pointer;color:var(--accent);font-family:var(--font-head);font-size:13px;font-weight:600;transition:background .2s;margin-left:auto;}
+  .share-alim-btn:hover{background:rgba(240,165,0,.15);}
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <div class="logo">COSAMPA<span>Rede Elétrica</span></div>
+    <div class="logo">COSAMPA<span>Rede Elétrica · <span class="update-badge" id="updateBadge">carregando…</span></span></div>
     <div class="header-right">
       <button class="icon-btn" id="refreshBtn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
@@ -152,6 +168,8 @@
       </button>
     </div>
   </header>
+  <div class="offline-banner" id="offlineBanner">⚡ Sem conexão — exibindo dados em cache</div>
+  <div class="ptr-indicator" id="ptrIndicator"><div class="ptr-spinner"></div><span>Atualizando…</span></div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" placeholder="Buscar por CD ou Alimentador…">
@@ -358,20 +376,88 @@ function sortGroups(grouped, rawRows) {
     });
 }
 
+const CACHE_KEY_REIT   = 'cosampa_cache_reit';
+const CACHE_KEY_REITMT = 'cosampa_cache_reitmt';
+const CACHE_KEY_TIME   = 'cosampa_cache_time';
+
+function loadCache() {
+  try {
+    const reit   = localStorage.getItem(CACHE_KEY_REIT);
+    const reitMT = localStorage.getItem(CACHE_KEY_REITMT);
+    const time   = localStorage.getItem(CACHE_KEY_TIME);
+    if (reit && reitMT) {
+      return { reiteradas: JSON.parse(reit), reiteradasMT: JSON.parse(reitMT), time };
+    }
+  } catch(e) {}
+  return null;
+}
+
+function saveCache(reiteradas, reiteradasMT) {
+  try {
+    localStorage.setItem(CACHE_KEY_REIT,   JSON.stringify(reiteradas));
+    localStorage.setItem(CACHE_KEY_REITMT, JSON.stringify(reiteradasMT));
+    localStorage.setItem(CACHE_KEY_TIME,   Date.now().toString());
+  } catch(e) {}
+}
+
+function formatLastUpdate(ts) {
+  if (!ts) return 'nunca';
+  const mins = Math.floor((Date.now() - parseInt(ts)) / 60000);
+  if (mins < 1)  return 'agora mesmo';
+  if (mins < 60) return `há ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return `há ${hrs}h`;
+  return `há ${Math.floor(hrs/24)}d`;
+}
+
+function updateBadge() {
+  const el = document.getElementById('updateBadge');
+  const ts = localStorage.getItem(CACHE_KEY_TIME);
+  if (el) el.textContent = formatLastUpdate(ts);
+}
+
+function applyData(reiteradas, reiteradasMT) {
+  state.data = { reiteradas, reiteradasMT, mt:[], bt:[] };
+  state.groupedReiteradas   = buildGroups(reiteradas,   ['CD','Código','Code','cd']);
+  state.groupedReiteradasMT = buildGroups(reiteradasMT, ['ELEMENTO OPERADO','Elemento Operado','elemento operado','CD','cd']);
+  state.loaded = true;
+}
+
 async function loadData() {
-  if(!state.sheetId){render();return;}
-  state.loading=true; render();
+  if (!state.sheetId) { render(); return; }
+
+  // Show cache immediately if available
+  const cache = loadCache();
+  if (cache) {
+    applyData(cache.reiteradas, cache.reiteradasMT);
+    updateBadge();
+    render();
+  } else {
+    state.loading = true; render();
+  }
+
+  // Check connectivity
+  const isOnline = navigator.onLine;
+  document.getElementById('offlineBanner').classList.toggle('show', !isOnline);
+
+  if (!isOnline) {
+    if (!cache) { state.error = 'Sem conexão e sem cache. Conecte-se à internet.'; }
+    state.loading = false; render(); return;
+  }
+
   try {
     const [reiteradas, reiteradasMT] = await Promise.all([
       fetchSheet(state.sheetId, SHEET_TABS.reiteradas),
       fetchSheet(state.sheetId, SHEET_TABS.reiteradasMT),
     ]);
-    state.data={reiteradas,reiteradasMT,mt:[],bt:[]};
-    state.groupedReiteradas=buildGroups(reiteradas,['CD','Código','Code','cd']);
-    state.groupedReiteradasMT=buildGroups(reiteradasMT,['ELEMENTO OPERADO','Elemento Operado','elemento operado','CD','cd']);
-    state.loaded=true;
-  } catch(e) { state.error='Erro ao carregar planilha. Verifique o ID e se ela está pública.'; }
-  state.loading=false; render();
+    applyData(reiteradas, reiteradasMT);
+    saveCache(reiteradas, reiteradasMT);
+    updateBadge();
+    state.error = null;
+  } catch(e) {
+    if (!cache) state.error = 'Erro ao carregar planilha. Verifique o ID e se ela está pública.';
+  }
+  state.loading = false; render();
 }
 
 function getRows() {
@@ -715,7 +801,13 @@ function saveAndLoad(){const id=document.getElementById('sheetIdInput')?.value?.
 
 // ── Visão Geral ───────────────────────────────────────────────────────────────
 function renderVisaoGeral(main) {
-  const rows=filterByPeriod(state.data.reiteradas||[]);
+  let baseRows = filterByPeriod(state.data.reiteradas||[]);
+  // Apply search filter on visao-geral
+  if (state.search && state.search.length >= 1) {
+    const q = state.search.toLowerCase();
+    baseRows = baseRows.filter(r => Object.values(r).some(v => v && v.toLowerCase().includes(q)));
+  }
+  const rows = baseRows;
   const cdGrouped={};
   rows.forEach(r=>{
     const cd=col(r,'CD','Código','Code','cd');
@@ -780,6 +872,41 @@ function openAlimentador(name) {
   });
   state.currentAlimCDs=sortedCDs;
   document.getElementById('alimentadorTitle').textContent=name;
+
+  // Share alimentador info
+  const alimShareBtn = document.createElement('button');
+  alimShareBtn.className = 'share-alim-btn';
+  alimShareBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copiar`;
+  alimShareBtn.onclick = () => {
+    const lvlLabel = {critical:'🔴 Crítico',high:'🟠 Alto',medium:'🟡 Médio',low:'🟢 Baixo'};
+    let msg = `📊 *Alimentador ${name}*
+`;
+    msg += `*Total CDs reiterados:* ${a.total}
+`;
+    if(a.critical) msg += `*Crítico:* ${a.critical}
+`;
+    if(a.high) msg += `*Alto:* ${a.high}
+`;
+    if(a.medium) msg += `*Médio:* ${a.medium}
+`;
+    if(a.low) msg += `*Baixo:* ${a.low}
+`;
+    msg += `
+*Top CDs:*
+`;
+    sortedCDs.slice(0,5).forEach(g => {
+      const lvl = lvlLabel[g.level]||'';
+      msg += `• ${g.cd}${g.cs?' - '+g.cs:''} — ${g.count}x ${lvl}
+`;
+    });
+    navigator.clipboard.writeText(msg).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    });
+    alimShareBtn.innerHTML = `✓ Copiado!`;
+    setTimeout(()=>{ alimShareBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copiar`; }, 2000);
+  };
+  document.getElementById('alimentadorPanel').querySelector('.alim-panel-header').appendChild(alimShareBtn);
+
   document.getElementById('alimentadorStats').innerHTML=`
     <div class="stat-card stat-total" style="flex:1"><div class="stat-value">${a.total}</div><div class="stat-label">CDs</div></div>
     ${a.critical?`<div class="stat-card stat-critical" style="flex:1"><div class="stat-value" style="color:#ef4444">${a.critical}</div><div class="stat-label">Crítico</div></div>`:''}
@@ -793,7 +920,7 @@ function openAlimentador(name) {
       return `<div class="list-item" data-alim-cd-idx="${i}">
         <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
           <div class="alert-dot dot-${g.level}"></div>
-          <div><div class="item-cd">${g.cd}</div><div class="item-alim">${recency?'<span style="color:var(--muted);font-size:11px">'+recency+'</span>':''}</div></div>
+          <div><div class="item-cd">${g.cd}</div><div class="item-alim">${g.alim||''}${g.cs?' - '+g.cs:''}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div></div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
           <div class="badge ${g.level}">${g.count}x</div>
@@ -829,6 +956,35 @@ function openAlimentador(name) {
 }
 
 function setPeriod(val){state.periodFilter=val;render();}
+
+// ── Pull to refresh ──────────────────────────────────────────────────────────
+(function() {
+  let startY = 0, pulling = false, threshold = 70;
+  const content = document.getElementById('mainContent');
+  content.addEventListener('touchstart', e => {
+    if (content.scrollTop === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+  content.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 20) document.getElementById('ptrIndicator').classList.add('visible');
+  }, { passive: true });
+  content.addEventListener('touchend', e => {
+    if (!pulling) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    const ptr = document.getElementById('ptrIndicator');
+    if (dy > threshold) { loadData(); }
+    setTimeout(() => ptr.classList.remove('visible'), 500);
+  });
+})();
+
+// ── Online/offline detection ──────────────────────────────────────────────────
+window.addEventListener('online',  () => { document.getElementById('offlineBanner').classList.remove('show'); loadData(); });
+window.addEventListener('offline', () => { document.getElementById('offlineBanner').classList.add('show'); });
+
+// ── Update badge timer ────────────────────────────────────────────────────────
+setInterval(updateBadge, 60000);
 
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
