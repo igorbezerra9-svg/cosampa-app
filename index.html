@@ -80,8 +80,8 @@
   .stat-high .stat-value{color:#f97316;}
   .stat-total .stat-value{color:var(--accent);}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-  .detail-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:10;}
-  .detail-panel.open{transform:translateX(0);}
+  .detail-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:10;visibility:hidden;}
+  .detail-panel.open{transform:translateX(0);visibility:visible;}
   .detail-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
   .back-btn{background:none;border:none;color:var(--accent);cursor:pointer;padding:4px;display:flex;}
   .detail-title{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:1px;}
@@ -110,8 +110,8 @@
   .nav-btn.active{color:var(--text);}
   .nav-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:2px 2px 0 0;}
   .nav-btn svg{display:block;}
-  .occur-modal{position:absolute;inset:0;background:var(--bg);z-index:30;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
-  .occur-modal.open{transform:translateX(0);}
+  .occur-modal{position:absolute;inset:0;background:var(--bg);z-index:30;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;visibility:hidden;}
+  .occur-modal.open{transform:translateX(0);visibility:visible;}
   .occur-modal-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
   .occur-modal-content{flex:1;overflow-y:auto;padding:16px;}
   .occur-row{cursor:pointer;transition:background .15s;}
