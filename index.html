@@ -317,8 +317,9 @@ function buildGroups(rawRows, cdColNames) {
   rawRows.forEach(r=>{
     const cd=col(r,...cdColNames);
     const alim=col(r,'ALIMENTADOR','Alimentador','alimentador');
+    const cs=col(r,'CENTRO DE SERVIÇO','CENTRO DE SERVICO','Centro de Serviço','Centro de Servico','centro de serviço','cs');
     if(!cd) return;
-    if(!grouped[cd]) grouped[cd]={cd,alim,count:0,rows:[]};
+    if(!grouped[cd]) grouped[cd]={cd,alim,cs,count:0,rows:[]};
     grouped[cd].count++;
     grouped[cd].rows.push(r);
   });
@@ -489,13 +490,14 @@ function renderReitItem(g,i,tabKey) {
   const lvl=g.level||'low';
   const lvlLabel={critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl];
   const recency=g.minDays!==null?(g.minDays===0?'hoje':g.minDays<=30?g.minDays+'d atrás':''):'';
+  const cs = g.cs ? ' - '+g.cs : '';
   return `<div class="list-item" data-idx="${i}" data-tabkey="${tabKey}">
     <div class="item-left">
       <div style="display:flex;align-items:center;gap:7px">
         <div class="alert-dot dot-${lvl}"></div>
         <div class="item-cd">${g.cd}</div>
       </div>
-      <div class="item-alim" style="padding-left:15px">${g.alim}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
+      <div class="item-alim" style="padding-left:15px">${g.alim}${cs}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <div class="badge ${lvl}">${g.count}x</div>
