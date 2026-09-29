@@ -239,8 +239,8 @@ async function loadBTIfNeeded() {
   try {
     const resp = await fetch(BT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const lines = (await resp.text()).trim().split('\n').slice(1);
-    BT_DATA = lines.map(line => { const c=parseCSVLine(line); return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||'',clientes:c[3]||'',potencia:c[4]||''}; }).filter(r=>r.cd);
+    const lines = parseCSVRows(await resp.text()).slice(1);
+    BT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||'',clientes:c[3]||'',potencia:c[4]||''}; }).filter(r=>r.cd);
   } catch(e) { BT_DATA=[]; state.btError='Erro ao carregar BT: '+e.message; }
   BT_LOADING = false;
 }
@@ -253,16 +253,33 @@ async function loadMTIfNeeded() {
   try {
     const resp = await fetch(MT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const lines = (await resp.text()).trim().split('\n').slice(1);
-    MT_DATA = lines.map(line => { const c=parseCSVLine(line); return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||''}; }).filter(r=>r.cd);
+    const lines = parseCSVRows(await resp.text()).slice(1);
+    MT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||''}; }).filter(r=>r.cd);
   } catch(e) { MT_DATA=[]; state.mtError='Erro ao carregar MT: '+e.message; }
   MT_LOADING = false;
 }
 
-function parseCSVLine(line) {
-  const cols=[]; let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}else{cur+=ch;}}
-  cols.push(cur.trim()); return cols;
+// Parser CSV (RFC 4180): aspas, "" escapado, virgulas/quebras de linha dentro de aspas, CRLF e BOM.
+function parseCSVRows(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const rows = []; let row = [], cur = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { row.push(cur.trim()); cur = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i+1] === '\n') i++;
+      row.push(cur.trim()); cur = '';
+      if (row.some(c => c !== '')) rows.push(row);
+      row = [];
+    } else cur += ch;
+  }
+  row.push(cur.trim());
+  if (row.some(c => c !== '')) rows.push(row);
+  return rows;
 }
 
 let state = {
@@ -283,13 +300,12 @@ async function fetchSheet(sheetId, tabName) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
-  return lines.slice(1).map(line => {
-    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+  const rows = parseCSVRows(text);
+  if (rows.length < 2) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(cols => {
     const obj={};
-    headers.forEach((h,i)=>{ obj[h]=(cols[i]||'').replace(/^"|"$/g,'').trim(); });
+    headers.forEach((h,i)=>{ obj[h]=cols[i]||''; });
     return obj;
   });
 }
