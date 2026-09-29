@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COSAMPA – Rede Elétrica</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#f0a500">
@@ -164,10 +164,10 @@
   <header>
     <div class="logo">COSAMPA<span>Rede Elétrica · <span class="update-badge" id="updateBadge">carregando…</span></span></div>
     <div class="header-right">
-      <button class="icon-btn" id="refreshBtn">
+      <button class="icon-btn" id="refreshBtn" aria-label="Atualizar dados">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       </button>
-      <button class="icon-btn" id="settingsBtn">
+      <button class="icon-btn" id="settingsBtn" aria-label="Configurar planilha">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
     </div>
@@ -175,19 +175,19 @@
   <div class="offline-banner" id="offlineBanner">⚡ Sem conexão — exibindo dados em cache</div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="searchInput" placeholder="Buscar por CD ou Alimentador…">
+    <input type="text" id="searchInput" aria-label="Buscar por CD ou alimentador" placeholder="Buscar por CD ou Alimentador…">
   </div>
   <div class="content" id="mainContent"></div>
 
   <div class="detail-panel" id="detailPanel">
     <div class="detail-header">
-      <button class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="back-btn" id="backBtn" aria-label="Voltar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-title" id="detailTitle"></span>
     </div>
     <div class="detail-content" id="detailContent"></div>
     <div class="occur-modal" id="occurModal">
       <div class="occur-modal-header">
-        <button class="back-btn" id="occurBackBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="back-btn" id="occurBackBtn" aria-label="Voltar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <span class="detail-title" id="occurTitle"></span>
       </div>
       <div class="occur-modal-content" id="occurContent"></div>
@@ -196,7 +196,7 @@
 
   <div class="alim-panel" id="alimentadorPanel">
     <div class="alim-panel-header">
-      <button class="back-btn" id="alimentadorBackBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="back-btn" id="alimentadorBackBtn" aria-label="Voltar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-title" id="alimentadorTitle"></span>
     </div>
     <div class="alim-stats" id="alimentadorStats"></div>
@@ -230,6 +230,13 @@
 <script>
 const CONFIG_KEY = 'cosampa_sheet_id';
 const DEFAULT_SHEET_ID = '14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y';
+
+// Escapa texto vindo da planilha/CSV antes de entrar em innerHTML ou atributo.
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Argumento string seguro para usar dentro de onclick="fn(...)".
+function ja(v){return esc(JSON.stringify(String(v??'')));}
+// So aceita links http(s); bloqueia javascript: e afins.
+function safeUrl(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:'';}
 
 let BT_DATA = null, BT_LOADING = false;
 const BT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/Cosampa%20Maps%20-%20BT.csv';
@@ -370,15 +377,6 @@ function buildGroups(rawRows, cdColNames) {
 }
 
 function sortGroups(grouped, rawRows) {
-  const filteredRows=filterByPeriod(rawRows);
-  const filteredGrouped={};
-  filteredRows.forEach(r=>{
-    const cd=Object.values(grouped).find(g=>g.rows.includes(r))?.cd;
-    if(!cd) return;
-    if(!filteredGrouped[cd]) filteredGrouped[cd]={rows:[]};
-    filteredGrouped[cd].rows.push(r);
-  });
-  // simpler: just match by checking row reference
   const lvlOrder={critical:0,high:1,medium:2,low:3};
   return Object.values(grouped)
     .filter(g=>{
@@ -483,12 +481,12 @@ function getRows() {
   if(state.tab==='mt'){
     if(!state.search||state.search.length<2||MT_DATA===null) return [];
     const q=state.search.toLowerCase();
-    return MT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)).slice(0,100);
+    const all=MT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)); state.searchTotal=all.length; return all.slice(0,100);
   }
   if(state.tab==='bt'){
     if(!state.search||state.search.length<2||BT_DATA===null) return [];
     const q=state.search.toLowerCase();
-    return BT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)).slice(0,100);
+    const all=BT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)); state.searchTotal=all.length; return all.slice(0,100);
   }
   const rows=state.data[state.tab]||[];
   if(!state.search) return rows;
@@ -528,7 +526,7 @@ function render() {
   const totalCount=state.tab==='mt'?(MT_DATA?MT_DATA.length:0):(BT_DATA?BT_DATA.length:0);
   const showHint=!state.search||state.search.length<2;
   main.innerHTML=`
-    <div class="count-bar">${showHint?totalCount.toLocaleString('pt-BR')+' registros — digite para buscar':rows.length+' resultados'}</div>
+    <div class="count-bar">${showHint?totalCount.toLocaleString('pt-BR')+' registros — digite para buscar':(state.searchTotal>rows.length?'mostrando '+rows.length+' de '+state.searchTotal+' — refine a busca':rows.length+' resultados')}</div>
     ${showHint?'<div class="empty"><div class="empty-icon">🔍</div>Digite o CD ou Alimentador para buscar</div>':''}
     ${!showHint&&rows.length===0?'<div class="empty"><div class="empty-icon">📍</div>Nenhum resultado encontrado</div>':''}
     ${rows.map((r,i)=>renderLocItem(r,i)).join('')}
@@ -575,7 +573,7 @@ function renderReiteradasTab(main, rawRows, grouped, tabKey, cdColNames) {
   const chartHtml=top10.length?`<div class="chart-wrap">
     <div class="chart-title">Top 10 mais reiterados</div>
     ${top10.map(g=>`<div class="chart-bar-row">
-      <div class="chart-label">${g.cd}</div>
+      <div class="chart-label">${esc(g.cd)}</div>
       <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(g.count/maxCount*100)}%;background:${levelColors[g.level]};color:#000">${g.count>=3?g.count:''}</div></div>
       <div class="chart-count" style="color:${levelColors[g.level]}">${g.count}</div>
     </div>`).join('')}
@@ -600,9 +598,9 @@ function renderReitItem(g,i,tabKey) {
     <div class="item-left">
       <div style="display:flex;align-items:center;gap:7px">
         <div class="alert-dot dot-${lvl}"></div>
-        <div class="item-cd">${g.cd}</div>
+        <div class="item-cd">${esc(g.cd)}</div>
       </div>
-      <div class="item-alim" style="padding-left:15px">${g.alim}${cs}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
+      <div class="item-alim" style="padding-left:15px">${esc(g.alim)}${esc(cs)}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <div class="badge ${lvl}">${g.count}x</div>
@@ -617,8 +615,8 @@ function renderLocItem(r,i) {
   const alim=r.alimentador||col(r,'Alimentador','ALIMENTADOR','alimentador');
   return `<div class="list-item" data-idx="${i}">
     <div class="item-left">
-      <div class="item-cd">${cd}</div>
-      <div class="item-alim">${alim}</div>
+      <div class="item-cd">${esc(cd)}</div>
+      <div class="item-alim">${esc(alim)}</div>
     </div>
     <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
   </div>`;
@@ -651,16 +649,16 @@ function openDetailReit(idx, tabKey) {
 
   document.getElementById('detailTitle').textContent=cd;
 
-  let html=`<button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','','${gps}','${sortedRows.length}','${lvl}','${municipio}','${causa}')">
+  let html=`<button class="share-btn" onclick="copyInfo(${ja(cd)},${ja(alim)},${ja(clientes)},'',${ja(gps)},${ja(sortedRows.length)},${ja(lvl)},${ja(municipio)},${ja(causa)})">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
     Copiar informações
   </button>
   <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
-  <div class="field-block"><div class="field-label">CD / Elemento</div><div class="field-value">${cd}</div></div>
-  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${alim}</div></div>`;
+  <div class="field-block"><div class="field-label">CD / Elemento</div><div class="field-value">${esc(cd)}</div></div>
+  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${esc(alim)}</div></div>`;
 
-  if(gps) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
-    <a class="field-link" href="${gps}" target="_blank">
+  if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+    <a class="field-link" href="${esc(safeUrl(gps))}" target="_blank" rel="noopener noreferrer">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Abrir no Google Maps
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -670,7 +668,7 @@ function openDetailReit(idx, tabKey) {
   const knownCols=['cd','alimentador','gps','localização','mapa','elemento operado','elementooperado'];
   Object.entries(r).filter(([k])=>!knownCols.some(kc=>k.toLowerCase().replace(/\s/g,'').includes(kc.replace(/\s/g,'')))).forEach(([k,v])=>{
     if(!v) return;
-    html+=`<div class="field-block"><div class="field-label">${k}</div><div class="field-value" style="font-size:15px">${v}</div></div>`;
+    html+=`<div class="field-block"><div class="field-label">${esc(k)}</div><div class="field-value" style="font-size:15px">${esc(v)}</div></div>`;
   });
 
   html+=`<hr class="divider">
@@ -679,9 +677,9 @@ function openDetailReit(idx, tabKey) {
     <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
     <tbody>${sortedRows.map((rr,ri)=>`
       <tr class="occur-row" onclick="openOccurrence(${ri})">
-        <td>${col(rr,'Data','DATA','data')}</td>
-        <td>${col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—'}</td>
-        <td>${col(rr,'MUNICIPIO','Municipio','município')||'—'}</td>
+        <td>${esc(col(rr,'Data','DATA','data'))}</td>
+        <td>${esc(col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—')}</td>
+        <td>${esc(col(rr,'MUNICIPIO','Municipio','município')||'—')}</td>
         <td style="color:var(--accent);font-size:12px">›</td>
       </tr>`).join('')}
     </tbody>
@@ -702,24 +700,24 @@ function openDetail(idx) {
   const potencia=r.potencia||col(r,'Total Potencia','TOTAL POTENCIA','Potência','potencia')||'';
 
   document.getElementById('detailTitle').textContent=cd;
-  let html=`<button class="share-btn" onclick="copyInfo('${cd}','${alim}','${clientes}','${potencia}','${gps}','','','','')">
+  let html=`<button class="share-btn" onclick="copyInfo(${ja(cd)},${ja(alim)},${ja(clientes)},${ja(potencia)},${ja(gps)},'','','','')">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
     Copiar informações
   </button>
   <div class="copied-msg" id="copied-msg">✓ Copiado! Cole no WhatsApp</div>
-  <div class="field-block"><div class="field-label">CD</div><div class="field-value">${cd}</div></div>
-  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${alim}</div></div>`;
+  <div class="field-block"><div class="field-label">CD</div><div class="field-value">${esc(cd)}</div></div>
+  <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${esc(alim)}</div></div>`;
 
-  if(gps) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
-    <a class="field-link" href="${gps}" target="_blank">
+  if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+    <a class="field-link" href="${esc(safeUrl(gps))}" target="_blank" rel="noopener noreferrer">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Abrir no Google Maps
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </a></div>`;
 
   if(clientes||potencia) html+=`<div class="info-grid">
-    ${clientes?`<div class="info-card"><div class="label">Total Clientes</div><div class="value">${clientes}</div></div>`:''}
-    ${potencia?`<div class="info-card"><div class="label">Total Potência</div><div class="value">${potencia}</div></div>`:''}
+    ${clientes?`<div class="info-card"><div class="label">Total Clientes</div><div class="value">${esc(clientes)}</div></div>`:''}
+    ${potencia?`<div class="info-card"><div class="label">Total Potência</div><div class="value">${esc(potencia)}</div></div>`:''}
   </div>`;
 
   // For MT/BT loc tabs: show related reiteradas
@@ -749,9 +747,9 @@ function openDetail(idx) {
         <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
         <tbody>${sortedRows.map((rr,ri)=>`
           <tr class="occur-row" onclick="openOccurrence(${ri})">
-            <td>${col(rr,'Data','DATA','data')}</td>
-            <td>${col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—'}</td>
-            <td>${col(rr,'MUNICIPIO','Municipio','município')||'—'}</td>
+            <td>${esc(col(rr,'Data','DATA','data'))}</td>
+            <td>${esc(col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—')}</td>
+            <td>${esc(col(rr,'MUNICIPIO','Municipio','município')||'—')}</td>
             <td style="color:var(--accent);font-size:12px">›</td>
           </tr>`).join('')}
         </tbody>
@@ -772,11 +770,11 @@ function renderOccurrenceDetail(rr) {
     ['Município',col(rr,'MUNICIPIO','Municipio','município','Município')],
   ];
   let html='';
-  fields.forEach(([label,val])=>{ if(!val) return; html+=`<div class="field-block"><div class="field-label">${label}</div><div class="field-value" style="font-size:15px">${val}</div></div>`; });
+  fields.forEach(([label,val])=>{ if(!val) return; html+=`<div class="field-block"><div class="field-label">${esc(label)}</div><div class="field-value" style="font-size:15px">${esc(val)}</div></div>`; });
   const obs=col(rr,'OBSERVACOES','Observações','OBSERVAÇÕES','observacoes','obs')||'';
-  if(obs) html+=`<hr class="divider"><div class="field-label">Observações</div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${obs}</div>`;
+  if(obs) html+=`<hr class="divider"><div class="field-label">Observações</div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${esc(obs)}</div>`;
   const mapa=col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO')||'';
-  if(mapa) html+=`<hr class="divider"><div class="field-label">Localização GPS</div><a class="field-link" href="${mapa}" target="_blank" style="margin-top:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Abrir no Google Maps<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+  if(safeUrl(mapa)) html+=`<hr class="divider"><div class="field-label">Localização GPS</div><a class="field-link" href="${esc(safeUrl(mapa))}" target="_blank" rel="noopener noreferrer" style="margin-top:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Abrir no Google Maps<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
   return html;
 }
 
@@ -811,7 +809,7 @@ function renderSetup() {
   return `<div class="setup-banner">
     <h3>⚙️ Configurar Planilha</h3>
     <p>Cole o <strong>ID da sua planilha</strong> do Google Sheets abaixo.</p>
-    <input type="text" id="sheetIdInput" placeholder="Ex: 14NLUj_..." value="${state.sheetId}">
+    <input type="text" id="sheetIdInput" placeholder="Ex: 14NLUj_..." value="${esc(state.sheetId)}">
     <button class="btn-primary" onclick="saveAndLoad()">Carregar Dados</button>
   </div>`;
 }
@@ -864,9 +862,9 @@ function renderVisaoGeral(main) {
   ${sortedAlim.map(a=>{
     const alimLevel=a.critical>0?'critical':a.high>0?'high':a.medium>0?'medium':'low';
     const color=levelColors[alimLevel];
-    return `<div class="alim-item" data-alim="${a.name}">
+    return `<div class="alim-item" data-alim="${esc(a.name)}">
       <div class="alim-info">
-        <div class="alim-name">${a.name}</div>
+        <div class="alim-name">${esc(a.name)}</div>
         <div class="alim-bar-wrap">
           <div class="alim-bar-bg"><div class="alim-bar-fill" style="width:${Math.round(a.total/maxTotal*100)}%;background:${color}"></div></div>
           <div class="alim-bar-info"><div class="alim-cds">${a.total} CDs reiterados</div><div class="alim-lvl" style="color:${color}">${levelLabels[alimLevel]}</div></div>
@@ -924,7 +922,9 @@ function openAlimentador(name) {
     alimShareBtn.innerHTML = `✓ Copiado!`;
     setTimeout(()=>{ alimShareBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copiar`; }, 2000);
   };
-  document.getElementById('alimentadorPanel').querySelector('.alim-panel-header').appendChild(alimShareBtn);
+  const alimHeader = document.getElementById('alimentadorPanel').querySelector('.alim-panel-header');
+  alimHeader.querySelectorAll('.share-alim-btn').forEach(b => b.remove());
+  alimHeader.appendChild(alimShareBtn);
 
   document.getElementById('alimentadorStats').innerHTML=`
     <div class="stat-card stat-total" style="flex:1"><div class="stat-value">${a.total}</div><div class="stat-label">CDs</div></div>
@@ -939,7 +939,7 @@ function openAlimentador(name) {
       return `<div class="list-item" data-alim-cd-idx="${i}">
         <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
           <div class="alert-dot dot-${g.level}"></div>
-          <div><div class="item-cd">${g.cd}</div><div class="item-alim">${g.alim||''}${g.cs?' - '+g.cs:''}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div></div>
+          <div><div class="item-cd">${esc(g.cd)}</div><div class="item-alim">${esc(g.alim||'')}${g.cs?' - '+esc(g.cs):''}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div></div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
           <div class="badge ${g.level}">${g.count}x</div>
@@ -1012,7 +1012,12 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     render();
   });
 });
-document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;render();});
+let searchTimer=null;
+document.getElementById('searchInput').addEventListener('input',e=>{
+  state.search=e.target.value;
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(render,180);
+});
 document.getElementById('backBtn').addEventListener('click',()=>{
   const dp=document.getElementById('detailPanel');
   dp.classList.remove('open','above-alim');
