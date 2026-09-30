@@ -147,6 +147,16 @@
 
 
 
+  /* ── Perto de mim / rota ── */
+  .search-wrap input{padding-right:88px;}
+  .nearby-btn{position:absolute;right:26px;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 8px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font-body);}
+  .nearby-btn.active{color:var(--accent);border-color:var(--accent);background:rgba(240,165,0,.12);}
+  .nearby-btn.busy{opacity:.55;pointer-events:none;}
+  .geo-banner{background:rgba(240,165,0,.1);border-bottom:1px solid rgba(240,165,0,.25);padding:6px 16px;font-size:12px;color:var(--accent);display:none;text-align:center;}
+  .geo-banner.show{display:block;}
+  .field-link.nav-link{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);justify-content:center;font-family:var(--font-head);font-weight:600;font-size:15px;}
+  .field-link.nav-link:hover{background:rgba(34,197,94,.18);}
+
   /* ── Last update badge ── */
   .update-badge{font-size:10px;color:var(--muted);opacity:.7;}
 
@@ -173,9 +183,14 @@
     </div>
   </header>
   <div class="offline-banner" id="offlineBanner">⚡ Sem conexão — exibindo dados em cache</div>
+  <div class="geo-banner" id="geoBanner" role="status"></div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" aria-label="Buscar por CD ou alimentador" placeholder="Buscar por CD ou Alimentador…">
+    <button class="nearby-btn" id="nearbyBtn" aria-label="Ordenar por perto de mim" aria-pressed="false" title="Perto de mim">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
+      Perto
+    </button>
   </div>
   <div class="content" id="mainContent"></div>
 
@@ -238,6 +253,66 @@ function ja(v){return esc(JSON.stringify(String(v??'')));}
 // So aceita links http(s); bloqueia javascript: e afins.
 function safeUrl(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:'';}
 
+// ── Localizacao: coordenadas, distancia e rota ───────────────────────────────
+// Extrai "lat, lng" de um link do Maps ou de texto puro.
+function parseLatLng(str){
+  const m=String(str||'').match(/(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);
+  if(!m) return null;
+  const lat=parseFloat(m[1]), lng=parseFloat(m[2]);
+  if(!(lat>=-90&&lat<=90&&lng>=-180&&lng<=180)) return null;
+  return {lat,lng};
+}
+function haversineKm(a,b){
+  const R=6371, rad=Math.PI/180;
+  const dLat=(b.lat-a.lat)*rad, dLng=(b.lng-a.lng)*rad;
+  const h=Math.sin(dLat/2)**2+Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function fmtDist(km){
+  if(km<1) return Math.round(km*1000/10)*10+' m';
+  if(km<10) return km.toFixed(1).replace('.',',')+' km';
+  return Math.round(km)+' km';
+}
+function navBlock(gps){
+  const ll=parseLatLng(gps);
+  if(!ll) return '';
+  return `<div class="field-block"><a class="field-link nav-link" href="https://www.google.com/maps/dir/?api=1&destination=${ll.lat},${ll.lng}&travelmode=driving" target="_blank" rel="noopener noreferrer">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    Iniciar rota até aqui</a></div>`;
+}
+function applyNearby(list){
+  if(!state.nearby) return list;
+  list.forEach(g=>{g.dist=g.lat!=null?haversineKm(state.nearby,g):null;});
+  return [...list].sort((a,b)=>(a.dist??1e9)-(b.dist??1e9));
+}
+function showGeoMsg(msg){
+  const el=document.getElementById('geoBanner');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(showGeoMsg.t);
+  showGeoMsg.t=setTimeout(()=>el.classList.remove('show'),5000);
+}
+function toggleNearby(){
+  const btn=document.getElementById('nearbyBtn');
+  if(state.nearby){ state.nearby=null; render(); return; }
+  if(!navigator.geolocation){ showGeoMsg('Este aparelho não permite localização.'); return; }
+  btn.classList.add('busy');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    btn.classList.remove('busy');
+    state.nearby={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    render();
+  },err=>{
+    btn.classList.remove('busy');
+    showGeoMsg(err.code===1?'Permissão de localização negada. Libere nas configurações do navegador.':'Não consegui pegar sua localização. Tente de novo.');
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+}
+function updateNearbyBtn(){
+  const btn=document.getElementById('nearbyBtn');
+  if(!btn) return;
+  btn.style.display=state.tab==='visao-geral'?'none':'flex';
+  btn.classList.toggle('active',!!state.nearby);
+  btn.setAttribute('aria-pressed',state.nearby?'true':'false');
+}
+
 let BT_DATA = null, BT_LOADING = false;
 const BT_CSV_URL = 'https://raw.githubusercontent.com/igorbezerra9-svg/cosampa-app/main/Cosampa%20Maps%20-%20BT.csv';
 async function loadBTIfNeeded() {
@@ -247,7 +322,7 @@ async function loadBTIfNeeded() {
     const resp = await fetch(BT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const lines = parseCSVRows(await resp.text()).slice(1);
-    BT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||'',clientes:c[3]||'',potencia:c[4]||''}; }).filter(r=>r.cd);
+    BT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||'',clientes:c[3]||'',potencia:c[4]||''}; }).filter(r=>r.cd).map(r=>{const ll=parseLatLng(r.gps);if(ll){r.lat=ll.lat;r.lng=ll.lng;}return r;});
   } catch(e) { BT_DATA=[]; state.btError='Erro ao carregar BT: '+e.message; }
   BT_LOADING = false;
 }
@@ -261,7 +336,7 @@ async function loadMTIfNeeded() {
     const resp = await fetch(MT_CSV_URL);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const lines = parseCSVRows(await resp.text()).slice(1);
-    MT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||''}; }).filter(r=>r.cd);
+    MT_DATA = lines.map(c => { return {cd:c[0]||'',gps:c[1]||'',alimentador:c[2]||''}; }).filter(r=>r.cd).map(r=>{const ll=parseLatLng(r.gps);if(ll){r.lat=ll.lat;r.lng=ll.lng;}return r;});
   } catch(e) { MT_DATA=[]; state.mtError='Erro ao carregar MT: '+e.message; }
   MT_LOADING = false;
 }
@@ -372,6 +447,7 @@ function buildGroups(rawRows, cdColNames) {
     const days=dates.map(d=>daysSince(d)).filter(d=>d!==null);
     g.minDays=days.length?Math.min(...days):null;
     g.level=alertLevel(g.count);
+    if(g.lat==null){ for(const rr of g.rows){ const ll=parseLatLng(col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO')); if(ll){g.lat=ll.lat;g.lng=ll.lng;break;} } }
   });
   return grouped;
 }
@@ -477,17 +553,27 @@ async function loadData() {
   state.loading = false; render();
 }
 
+function locRows(data){
+  if(data===null) return [];
+  const hasQ=state.search&&state.search.length>=2;
+  if(!hasQ&&!state.nearby) return [];
+  let all=data;
+  if(hasQ){
+    const q=state.search.toLowerCase();
+    all=data.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q));
+  }
+  if(state.nearby){
+    all=all.filter(r=>r.lat!=null);
+    all.forEach(r=>{r.dist=haversineKm(state.nearby,r);});
+    all=[...all].sort((x,y)=>x.dist-y.dist);
+  }
+  state.searchTotal=all.length;
+  return all.slice(0,100);
+}
+
 function getRows() {
-  if(state.tab==='mt'){
-    if(!state.search||state.search.length<2||MT_DATA===null) return [];
-    const q=state.search.toLowerCase();
-    const all=MT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)); state.searchTotal=all.length; return all.slice(0,100);
-  }
-  if(state.tab==='bt'){
-    if(!state.search||state.search.length<2||BT_DATA===null) return [];
-    const q=state.search.toLowerCase();
-    const all=BT_DATA.filter(r=>(r.cd||'').toLowerCase().includes(q)||(r.alimentador||'').toLowerCase().includes(q)); state.searchTotal=all.length; return all.slice(0,100);
-  }
+  if(state.tab==='mt') return locRows(MT_DATA);
+  if(state.tab==='bt') return locRows(BT_DATA);
   const rows=state.data[state.tab]||[];
   if(!state.search) return rows;
   const q=state.search.toLowerCase();
@@ -496,6 +582,7 @@ function getRows() {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
+  updateNearbyBtn();
   const main=document.getElementById('mainContent');
   if(!state.sheetId){main.innerHTML=renderSetup();return;}
   if(state.loading){main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando dados…</span></div>`;return;}
@@ -524,9 +611,9 @@ function render() {
 
   const rows=getRows();
   const totalCount=state.tab==='mt'?(MT_DATA?MT_DATA.length:0):(BT_DATA?BT_DATA.length:0);
-  const showHint=!state.search||state.search.length<2;
+  const showHint=(!state.search||state.search.length<2)&&!state.nearby;
   main.innerHTML=`
-    <div class="count-bar">${showHint?totalCount.toLocaleString('pt-BR')+' registros — digite para buscar':(state.searchTotal>rows.length?'mostrando '+rows.length+' de '+state.searchTotal+' — refine a busca':rows.length+' resultados')}</div>
+    <div class="count-bar">${showHint?totalCount.toLocaleString('pt-BR')+' registros — digite para buscar':(state.nearby&&!state.search?rows.length+' mais próximos de você':state.searchTotal>rows.length?'mostrando '+rows.length+' de '+state.searchTotal+' — refine a busca':rows.length+' resultados')}</div>
     ${showHint?'<div class="empty"><div class="empty-icon">🔍</div>Digite o CD ou Alimentador para buscar</div>':''}
     ${!showHint&&rows.length===0?'<div class="empty"><div class="empty-icon">📍</div>Nenhum resultado encontrado</div>':''}
     ${rows.map((r,i)=>renderLocItem(r,i)).join('')}
@@ -549,7 +636,8 @@ function renderReiteradasTab(main, rawRows, grouped, tabKey, cdColNames) {
     effectiveGrouped = buildGroups(filteredRaws, cdColNames);
   }
 
-  const sorted=sortGroups(effectiveGrouped, rawRows);
+  const bySeverity=sortGroups(effectiveGrouped, rawRows);
+  const sorted=applyNearby(bySeverity);
   // Save sorted using effectiveGrouped so openDetailReit uses filtered index
   if(tabKey==='reiteradas') { state.sortedReiteradas=sorted; if(!state.search||state.search.length<2) state.groupedReiteradas=effectiveGrouped||grouped; }
   else { state.sortedReiteradasMT=sorted; if(!state.search||state.search.length<2) state.groupedReiteradasMT=effectiveGrouped||grouped; }
@@ -557,7 +645,7 @@ function renderReiteradasTab(main, rawRows, grouped, tabKey, cdColNames) {
   const critical=sorted.filter(g=>g.level==='critical').length;
   const high=sorted.filter(g=>g.level==='high').length;
   const levelColors={critical:'#ef4444',high:'#f97316',medium:'#eab308',low:'#22c55e'};
-  const top10=sorted.slice(0,10);
+  const top10=bySeverity.slice(0,10);
   const maxCount=top10.length?top10[0].count:1;
 
   const statsHtml=`<div class="stats-bar">
@@ -600,7 +688,7 @@ function renderReitItem(g,i,tabKey) {
         <div class="alert-dot dot-${lvl}"></div>
         <div class="item-cd">${esc(g.cd)}</div>
       </div>
-      <div class="item-alim" style="padding-left:15px">${esc(g.alim)}${esc(cs)}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
+      <div class="item-alim" style="padding-left:15px">${esc(g.alim)}${esc(cs)}${state.nearby&&g.dist!=null?' · <span style="color:var(--accent)">'+fmtDist(g.dist)+'</span>':''}${recency?' · <span style="color:var(--danger);font-size:11px">'+recency+'</span>':''}</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <div class="badge ${lvl}">${g.count}x</div>
@@ -616,7 +704,7 @@ function renderLocItem(r,i) {
   return `<div class="list-item" data-idx="${i}">
     <div class="item-left">
       <div class="item-cd">${esc(cd)}</div>
-      <div class="item-alim">${esc(alim)}</div>
+      <div class="item-alim">${esc(alim)}${state.nearby&&r.dist!=null?' · <span style="color:var(--accent)">'+fmtDist(r.dist)+'</span>':''}</div>
     </div>
     <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
   </div>`;
@@ -657,7 +745,7 @@ function openDetailReit(idx, tabKey) {
   <div class="field-block"><div class="field-label">CD / Elemento</div><div class="field-value">${esc(cd)}</div></div>
   <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${esc(alim)}</div></div>`;
 
-  if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+  html+=navBlock(gps); if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
     <a class="field-link" href="${esc(safeUrl(gps))}" target="_blank" rel="noopener noreferrer">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Abrir no Google Maps
@@ -708,7 +796,7 @@ function openDetail(idx) {
   <div class="field-block"><div class="field-label">CD</div><div class="field-value">${esc(cd)}</div></div>
   <div class="field-block"><div class="field-label">Alimentador</div><div class="field-value">${esc(alim)}</div></div>`;
 
-  if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
+  html+=navBlock(gps); if(safeUrl(gps)) html+=`<div class="field-block"><div class="field-label">Localização GPS</div>
     <a class="field-link" href="${esc(safeUrl(gps))}" target="_blank" rel="noopener noreferrer">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Abrir no Google Maps
@@ -1000,6 +1088,16 @@ window.addEventListener('offline', () => { document.getElementById('offlineBanne
 // ── Update badge timer ────────────────────────────────────────────────────────
 setInterval(updateBadge, 60000);
 
+// ── Atualiza sozinho se o dado estiver velho (app aberto por horas / voltou do segundo plano) ──
+function refreshIfStale(){
+  if(document.visibilityState!=='visible'||state.loading||!navigator.onLine) return;
+  const ts=parseInt(localStorage.getItem(CACHE_KEY_TIME)||'0');
+  if(Date.now()-ts>10*60000) loadData();
+  else updateBadge();
+}
+document.addEventListener('visibilitychange',refreshIfStale);
+setInterval(refreshIfStale,5*60000);
+
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     state.tab=btn.dataset.tab;state.search='';
@@ -1024,6 +1122,7 @@ document.getElementById('backBtn').addEventListener('click',()=>{
 });
 document.getElementById('occurBackBtn').addEventListener('click',()=>document.getElementById('occurModal').classList.remove('open'));
 document.getElementById('alimentadorBackBtn').addEventListener('click',()=>document.getElementById('alimentadorPanel').classList.remove('open'));
+document.getElementById('nearbyBtn').addEventListener('click',toggleNearby);
 document.getElementById('refreshBtn').addEventListener('click',()=>{state.error=null;loadData();});
 document.getElementById('settingsBtn').addEventListener('click',showSetup);
 
