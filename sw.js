@@ -1,9 +1,12 @@
 // Aumente a versão sempre que mudar a lista de ASSETS ou a estratégia de cache.
-const CACHE_NAME = 'cosampa-v2';
+const CACHE_NAME = 'cosampa-v4';
 const DATA_CACHE = 'cosampa-data-v1';
 const ASSETS = [
   '/cosampa-app/',
   '/cosampa-app/index.html',
+  '/cosampa-app/dashboard.css',
+  '/cosampa-app/dashboard.js',
+  '/cosampa-app/equipes.json',
   '/cosampa-app/icon-192.png',
   '/cosampa-app/icon-512.png',
   '/cosampa-app/manifest.json',

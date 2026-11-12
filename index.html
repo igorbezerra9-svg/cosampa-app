@@ -168,6 +168,7 @@
   .share-alim-btn{display:flex;align-items:center;gap:6px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:7px 12px;cursor:pointer;color:var(--accent);font-family:var(--font-head);font-size:13px;font-weight:600;transition:background .2s;margin-left:auto;}
   .share-alim-btn:hover{background:rgba(240,165,0,.15);}
 </style>
+<link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 <div id="app">
@@ -184,6 +185,7 @@
   </header>
   <div class="offline-banner" id="offlineBanner">⚡ Sem conexão — exibindo dados em cache</div>
   <div class="geo-banner" id="geoBanner" role="status"></div>
+  <div class="subtabs" id="subTabs" style="display:none"></div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="searchInput" aria-label="Buscar por CD ou alimentador" placeholder="Buscar por CD ou Alimentador…">
@@ -193,6 +195,10 @@
     </button>
   </div>
   <div class="content" id="mainContent"></div>
+  <div class="desktop-placeholder" id="desktopPlaceholder">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <span>Selecione um item na lista para ver os detalhes</span>
+  </div>
 
   <div class="detail-panel" id="detailPanel">
     <div class="detail-header">
@@ -218,30 +224,31 @@
     <div class="alim-panel-content" id="alimentadorContent"></div>
   </div>
 
-  <nav>
-    <button class="nav-btn active" data-tab="visao-geral">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  <nav id="mainNav">
+    <button class="nav-btn" data-group="dash">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-group="alim">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Visão Geral
     </button>
-    <button class="nav-btn" data-tab="reiteradas">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Reit. BT
+    <button class="nav-btn" data-group="reit">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Reiteradas
     </button>
-    <button class="nav-btn" data-tab="reiteradasMT">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Reit. MT
+    <button class="nav-btn" data-group="comp">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      Comparar
     </button>
-    <button class="nav-btn" data-tab="mt">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Loc. MT
-    </button>
-    <button class="nav-btn" data-tab="bt">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Loc. BT
+    <button class="nav-btn" data-group="loc">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Localizar
     </button>
   </nav>
 </div>
 
+<script src="dashboard.js"></script>
 <script>
 const CONFIG_KEY = 'cosampa_sheet_id';
 const DEFAULT_SHEET_ID = '14NLUj_pdgzUWj8WOt_ICcUXjt10W8TqcywFqlU25E5Y';
@@ -365,14 +372,49 @@ function parseCSVRows(text) {
 }
 
 let state = {
-  tab:'visao-geral', search:'',
+  tab:matchMedia('(min-width:900px)').matches?'dashboard':'visao-geral', search:'', groupTab:{},
   data:{reiteradas:[],reiteradasMT:[],mt:[],bt:[]},
   loaded:false, loading:false,
   sheetId: localStorage.getItem(CONFIG_KEY)||DEFAULT_SHEET_ID,
   periodFilter:'all',
 };
 
-const SHEET_TABS = { reiteradas:'Reiterada', reiteradasMT:'Reiteradas MT', mt:'MT', bt:'BT' };
+const SHEET_TABS = { reiteradas:'Reiteradas', reiteradasMT:'Reiteradas MT', mt:'MT', bt:'BT' };
+
+// ── Navegação: 5 grupos no menu; alguns têm sub-abas (BT|MT, Período|Reincidência|Cosampa×Enel…) ──
+const GROUPS = {
+  dash:{tabs:[['dashboard','Dashboard']]},
+  alim:{tabs:[['visao-geral','Visão Geral']]},
+  reit:{tabs:[['reiteradas','BT · CDs'],['reiteradasMT','MT · Chaves']]},
+  comp:{tabs:[['comp-periodo','Por período'],['comp-reinc','Reincidência'],['comp-enel','Cosampa × Enel']]},
+  loc:{tabs:[['mt','Localizar MT'],['bt','Localizar BT']]},
+};
+// Telas "largas" (sem lista + detalhe): ocupam a tela toda no PC.
+const WIDE_TABS = new Set(['dashboard','comp-periodo','comp-reinc','comp-enel']);
+function groupOf(tab){ return Object.keys(GROUPS).find(g=>GROUPS[g].tabs.some(t=>t[0]===tab))||'alim'; }
+function syncNav(){
+  const g=groupOf(state.tab);
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.group===g));
+}
+function renderSubTabs(){
+  const el=document.getElementById('subTabs'); if(!el) return;
+  const g=GROUPS[groupOf(state.tab)];
+  if(!g||g.tabs.length<2){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='';
+  el.innerHTML=g.tabs.map(([t,l])=>`<button class="filter-chip${t===state.tab?' active':''}" onclick="setTab('${t}')">${l}</button>`).join('');
+}
+function applyLayoutMode(){
+  document.getElementById('app').classList.toggle('wide',WIDE_TABS.has(state.tab));
+  renderSubTabs();
+}
+function setTab(tab){
+  state.tab=tab; state.search=''; state.groupTab[groupOf(tab)]=tab;
+  document.getElementById('searchInput').value='';
+  ['detailPanel','alimentadorPanel','occurModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  document.getElementById('detailPanel').classList.remove('above-alim');
+  syncNav();
+  render();
+}
 
 async function fetchSheet(sheetId, tabName) {
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
@@ -469,27 +511,30 @@ function sortGroups(grouped, rawRows) {
     });
 }
 
-const CACHE_KEY_REIT   = 'cosampa_cache_reit';
-const CACHE_KEY_REITMT = 'cosampa_cache_reitmt';
-const CACHE_KEY_TIME   = 'cosampa_cache_time';
+const CACHE_KEY_TIME = 'cosampa_cache_time';
 
-function loadCache() {
+// Cache offline no IndexedDB. (O localStorage estourava o limite de ~5 MB com as duas abas, a gravação
+// falhava em silêncio e o selo "atualizado há…" ficava parado.)
+const IDB_NAME='cosampa-cache', IDB_STORE='kv';
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open(IDB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(IDB_STORE);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function idbGet(k){return idbOpen().then(db=>new Promise((res,rej)=>{const q=db.transaction(IDB_STORE).objectStore(IDB_STORE).get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);}));}
+function idbSet(k,v){return idbOpen().then(db=>new Promise((res,rej)=>{const t=db.transaction(IDB_STORE,'readwrite');t.objectStore(IDB_STORE).put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);}));}
+
+async function loadCache() {
   try {
-    const reit   = localStorage.getItem(CACHE_KEY_REIT);
-    const reitMT = localStorage.getItem(CACHE_KEY_REITMT);
-    const time   = localStorage.getItem(CACHE_KEY_TIME);
-    if (reit && reitMT) {
-      return { reiteradas: JSON.parse(reit), reiteradasMT: JSON.parse(reitMT), time };
-    }
+    const c = await idbGet('data');
+    if (c && c.reiteradas && c.reiteradasMT) return c;
   } catch(e) {}
   return null;
 }
 
-function saveCache(reiteradas, reiteradasMT) {
+async function saveCache(reiteradas, reiteradasMT) {
+  const time = Date.now();
+  try { await idbSet('data', { reiteradas, reiteradasMT, time }); } catch(e) {}
+  // O horário só precisa de poucos bytes: grava sempre que os dados chegaram frescos.
   try {
-    localStorage.setItem(CACHE_KEY_REIT,   JSON.stringify(reiteradas));
-    localStorage.setItem(CACHE_KEY_REITMT, JSON.stringify(reiteradasMT));
-    localStorage.setItem(CACHE_KEY_TIME,   Date.now().toString());
+    localStorage.setItem(CACHE_KEY_TIME, String(time));
+    ['cosampa_cache_reit','cosampa_cache_reitmt'].forEach(k=>localStorage.removeItem(k)); // cache antigo
   } catch(e) {}
 }
 
@@ -509,6 +554,14 @@ function updateBadge() {
   if (el) el.textContent = formatLastUpdate(ts);
 }
 
+// A planilha traz ~3 mil linhas de fórmula vazias (#N/A, sem data/CD). Fora daqui elas só atrapalham e pesam.
+function cleanRows(rows) {
+  return rows.filter(r => parseBRDate(col(r,'Data','DATA','data'))).map(r => {
+    for (const k in r) if (r[k] === '#N/A') r[k] = '';
+    return r;
+  });
+}
+
 function applyData(reiteradas, reiteradasMT) {
   state.data = { reiteradas, reiteradasMT, mt:[], bt:[] };
   state.groupedReiteradas   = buildGroups(reiteradas,   ['CD','Código','Code','cd']);
@@ -519,8 +572,8 @@ function applyData(reiteradas, reiteradasMT) {
 async function loadData() {
   if (!state.sheetId) { render(); return; }
 
-  // Show cache immediately if available
-  const cache = loadCache();
+  // Mostra o cache na hora, se houver
+  const cache = await loadCache();
   if (cache) {
     applyData(cache.reiteradas, cache.reiteradasMT);
     updateBadge();
@@ -543,8 +596,9 @@ async function loadData() {
       fetchSheet(state.sheetId, SHEET_TABS.reiteradas),
       fetchSheet(state.sheetId, SHEET_TABS.reiteradasMT),
     ]);
-    applyData(reiteradas, reiteradasMT);
-    saveCache(reiteradas, reiteradasMT);
+    const reit = cleanRows(reiteradas), reitMT = cleanRows(reiteradasMT);
+    applyData(reit, reitMT);
+    await saveCache(reit, reitMT);
     updateBadge();
     state.error = null;
   } catch(e) {
@@ -583,10 +637,13 @@ function getRows() {
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   updateNearbyBtn();
+  applyLayoutMode();
   const main=document.getElementById('mainContent');
   if(!state.sheetId){main.innerHTML=renderSetup();return;}
   if(state.loading){main.innerHTML=`<div class="status-box"><div class="spinner"></div><span>Carregando dados…</span></div>`;return;}
   if(state.error){main.innerHTML=`<div class="status-box"><span style="color:var(--danger)">${state.error}</span><button class="btn-primary" onclick="showSetup()">Reconfigurar</button></div>`;return;}
+
+  if(WIDE_TABS.has(state.tab)){ renderWideTab(main); return; }
 
   if(state.tab==='visao-geral'){ renderVisaoGeral(main); return; }
 
@@ -1100,16 +1157,14 @@ setInterval(refreshIfStale,5*60000);
 
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    state.tab=btn.dataset.tab;state.search='';
-    document.getElementById('searchInput').value='';
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('detailPanel').classList.remove('open');
-    document.getElementById('alimentadorPanel').classList.remove('open');
-    document.getElementById('occurModal').classList.remove('open');
-    render();
+    const g=btn.dataset.group;
+    setTab(state.groupTab[g]||GROUPS[g].tabs[0][0]);
   });
 });
+syncNav();
+// Redesenha gráficos ao girar/redimensionar a tela (o SVG é calculado pela largura disponível)
+let resizeTimer=null;
+window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(WIDE_TABS.has(state.tab)&&state.loaded)render();},200);});
 let searchTimer=null;
 document.getElementById('searchInput').addEventListener('input',e=>{
   state.search=e.target.value;
