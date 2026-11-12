@@ -819,12 +819,13 @@ function openDetailReit(idx, tabKey) {
   html+=`<hr class="divider">
   <div class="reit-header">Ocorrências<span class="reit-count">${sortedRows.length}</span></div>
   <table class="reit-table">
-    <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
+    <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th><th>Equipe</th></tr></thead>
     <tbody>${sortedRows.map((rr,ri)=>`
       <tr class="occur-row" onclick="openOccurrence(${ri})">
         <td>${esc(col(rr,'Data','DATA','data'))}</td>
         <td>${esc(col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—')}</td>
         <td>${esc(col(rr,'MUNICIPIO','Municipio','município')||'—')}</td>
+        <td>${typeof atorCell==='function'?atorCell(rr):''}</td>
         <td style="color:var(--accent);font-size:12px">›</td>
       </tr>`).join('')}
     </tbody>
@@ -889,12 +890,13 @@ function openDetail(idx) {
         <span class="badge ${lvl}" style="font-size:11px;padding:2px 8px">${{critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'}[lvl]}</span>
       </div>
       <table class="reit-table">
-        <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th></tr></thead>
+        <thead><tr><th>Data</th><th>Tipo de Causa</th><th>Município</th><th>Equipe</th></tr></thead>
         <tbody>${sortedRows.map((rr,ri)=>`
           <tr class="occur-row" onclick="openOccurrence(${ri})">
             <td>${esc(col(rr,'Data','DATA','data'))}</td>
             <td>${esc(col(rr,'TIPO_CAUSA','Tipo de Causa','TIPO DE CAUSA','causa','tipodecausa')||'—')}</td>
             <td>${esc(col(rr,'MUNICIPIO','Municipio','município')||'—')}</td>
+        <td>${typeof atorCell==='function'?atorCell(rr):''}</td>
             <td style="color:var(--accent);font-size:12px">›</td>
           </tr>`).join('')}
         </tbody>
@@ -916,6 +918,7 @@ function renderOccurrenceDetail(rr) {
   ];
   let html='';
   fields.forEach(([label,val])=>{ if(!val) return; html+=`<div class="field-block"><div class="field-label">${esc(label)}</div><div class="field-value" style="font-size:15px">${esc(val)}</div></div>`; });
+  if(typeof atorCell==='function'){ const at=atorCell(rr); if(at) html+=`<div class="field-block"><div class="field-label">Atendimento</div><div class="field-value" style="font-size:15px">${at}</div></div>`; }
   const obs=col(rr,'OBSERVACOES','Observações','OBSERVAÇÕES','observacoes','obs')||'';
   if(obs) html+=`<hr class="divider"><div class="field-label">Observações</div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:6px;font-size:14px;line-height:1.6;color:var(--text)">${esc(obs)}</div>`;
   const mapa=col(rr,'Mapa','MAPA','GPS','gps','Localização','LOCALIZAÇÃO')||'';
